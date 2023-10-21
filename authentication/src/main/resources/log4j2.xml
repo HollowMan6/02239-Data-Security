@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <RollingFile name="fout" fileName="log4j2/logs/auth.log" filePattern="log4j2/logs/%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout>
+                <Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/> <!--How often does it take to scroll-->
+                <SizeBasedTriggeringPolicy size="10KB"/> <!-- The maximum size of a log file -->
+            </Policies>
+            <DefaultRolloverStrategy max="20"/> <!-- The maximum number of files in the folder -->
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="fout"/>
+        </Root>
+    </Loggers>
+</Configuration>
