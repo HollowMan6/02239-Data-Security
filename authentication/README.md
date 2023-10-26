@@ -34,7 +34,7 @@ If the authentication is successful, the server creates a session for the user a
 
 We decided to implement our solution using a DBMS. Our design choice was driven by an analysis of desirable and provided features for each suggested method of password storing mechanism. Hereby a detailed description of our reasoning: 
 
-![](../features.png)
+![](./features.png)
 
 
 ////////////////////////////////////////////
