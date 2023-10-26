@@ -39,8 +39,8 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		db = new DB();
 	}
 
-	public String print(String filename, String printer, String cookie) throws RemoteException {
-		if (!isAuthenticated(cookie, "print"))
+	public String print(String filename, String printer, String access_token) throws RemoteException {
+		if (!isAuthenticated(access_token, "print"))
 			return UNAUTHENTICATED;
 		if (!started)
 			return NOT_STARTED;
@@ -54,8 +54,8 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		return NOT_FOUND;
 	}
 
-	public String queue(String printer, String cookie) throws RemoteException {
-		if (!isAuthenticated(cookie, "queue"))
+	public String queue(String printer, String access_token) throws RemoteException {
+		if (!isAuthenticated(access_token, "queue"))
 			return UNAUTHENTICATED;
 		if (!started)
 			return NOT_STARTED;
@@ -69,8 +69,8 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		return NOT_FOUND;
 	}
 
-	public String topQueue(String printer, int job, String cookie) throws RemoteException {
-		if (!isAuthenticated(cookie, "topQueue"))
+	public String topQueue(String printer, int job, String access_token) throws RemoteException {
+		if (!isAuthenticated(access_token, "topQueue"))
 			return UNAUTHENTICATED;
 		if (!started)
 			return NOT_STARTED;
@@ -84,8 +84,8 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		return NOT_FOUND;
 	}
 
-	public String start(String cookie) throws RemoteException {
-		if (!isAuthenticated(cookie, "start"))
+	public String start(String access_token) throws RemoteException {
+		if (!isAuthenticated(access_token, "start"))
 			return UNAUTHENTICATED;
 		if (started) {
 			return "Printing service already started";
@@ -94,20 +94,20 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		return "Printing service started";
 	}
 
-	public String stop(String cookie) throws RemoteException {
-		if (!isAuthenticated(cookie, "stop"))
+	public String stop(String access_token) throws RemoteException {
+		if (!isAuthenticated(access_token, "stop"))
 			return UNAUTHENTICATED;
 		if (!started) {
 			return NOT_STARTED;
 		}
 		started = false;
-		sessions.remove(cookie);
-		sessionUsers.remove(cookie);
+		sessions.remove(access_token);
+		sessionUsers.remove(access_token);
 		return "Service stop";
 	}
 
-	public String restart(String cookie) throws RemoteException {
-		if (!isAuthenticated(cookie, "restart"))
+	public String restart(String access_token) throws RemoteException {
+		if (!isAuthenticated(access_token, "restart"))
 			return UNAUTHENTICATED;
 		if (!started) {
 			return NOT_STARTED;
@@ -116,13 +116,13 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		for (var p : printers) {
 			p.clearQueue();
 		}
-		sessions.remove(cookie);
-		sessionUsers.remove(cookie);
+		sessions.remove(access_token);
+		sessionUsers.remove(access_token);
 		return "Printing service restarted";
 	}
 
-	public String status(String printer, String cookie) throws RemoteException {
-		if (!isAuthenticated(cookie, "status"))
+	public String status(String printer, String access_token) throws RemoteException {
+		if (!isAuthenticated(access_token, "status"))
 			return UNAUTHENTICATED;
 		if (!started) {
 			return NOT_STARTED;
@@ -136,8 +136,8 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		return NOT_FOUND;
 	}
 
-	public String readConfig(String parameter, String cookie) throws RemoteException {
-		if (!isAuthenticated(cookie, "readConfig"))
+	public String readConfig(String parameter, String access_token) throws RemoteException {
+		if (!isAuthenticated(access_token, "readConfig"))
 			return UNAUTHENTICATED;
 		if (!started) {
 			return NOT_STARTED;
@@ -152,8 +152,8 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		return error;
 	}
 
-	public String setConfig(String parameter, String value, String cookie) throws RemoteException {
-		if (!isAuthenticated(cookie, "setConfig"))
+	public String setConfig(String parameter, String value, String access_token) throws RemoteException {
+		if (!isAuthenticated(access_token, "setConfig"))
 			return UNAUTHENTICATED;
 		if (!started) {
 			return NOT_STARTED;
@@ -175,7 +175,7 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 			logger.info(String.format("Authentication failed for %s", username));
 			return "";
 		}
-		// If authentication success, return an uuid as cookie and add the associated
+		// If authentication success, return an uuid as access_token and add the associated
 		// session
 		String uuid = (UUID.randomUUID()).toString();
 		Session session = new Session(validSessionTime);
@@ -186,16 +186,16 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		return uuid;
 	}
 
-	private boolean isAuthenticated(String cookie, String serviceName) {
-		if (!sessions.containsKey(cookie))
+	private boolean isAuthenticated(String access_token, String serviceName) {
+		if (!sessions.containsKey(access_token))
 			return false;
-		Session session = sessions.get(cookie);
+		Session session = sessions.get(access_token);
 		if (!session.isAuthenticated()) {
-			sessions.remove(cookie);
-			sessionUsers.remove(cookie);
+			sessions.remove(access_token);
+			sessionUsers.remove(access_token);
 			return false;
 		}
-		logger.info(String.format("%s requesting: %s", sessionUsers.get(cookie),
+		logger.info(String.format("%s requesting: %s", sessionUsers.get(access_token),
 				serviceName));
 		return true;
 	}

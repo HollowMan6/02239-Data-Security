@@ -21,26 +21,26 @@ public class Client {
 
 		// The following codes describe a typical procedure to use the printing service
 		PrinterService printer = (PrinterService) Naming.lookup(Configuration.url + "/printer");
-		String cookie = printer.authenticate(Configuration.testUsername, pwHash, Configuration.validSessionTime);
-		System.out.println(printer.start(cookie));
-		System.out.println(printer.print("test1.txt", "printer1", cookie));
-		System.out.println(printer.print("test2.txt", "printer2", cookie));
-		System.out.println(printer.print("test3.txt", "printer2", cookie));
-		System.out.println(printer.print("test4.txt", "printer1", cookie));
-		System.out.println(printer.print("test5.txt", "printer1", cookie));
-		System.out.println(printer.queue("printer2", cookie));
-		System.out.println(printer.queue("printer1", cookie));
-		System.out.println(printer.setConfig("printers", "2", cookie));
-		System.out.println(printer.readConfig("printers", cookie));
-		System.out.println(printer.topQueue("printer1", 3, cookie));
-		System.out.println(printer.queue("printer1", cookie));
-		System.out.println(printer.status("printer1", cookie));
-		System.out.println(printer.status("printer2", cookie));
-		System.out.println(printer.restart(cookie));
-		cookie = printer.authenticate(Configuration.testUsername, pwHash, Configuration.validSessionTime);
-		System.out.println(printer.queue("printer1", cookie));
-		System.out.println(printer.queue("printer2", cookie));
-		System.out.println(printer.stop(cookie));
+		String access_token = printer.authenticate(Configuration.testUsername, pwHash, Configuration.validSessionTime);
+		System.out.println(printer.start(access_token));
+		System.out.println(printer.print("test1.txt", "printer1", access_token));
+		System.out.println(printer.print("test2.txt", "printer2", access_token));
+		System.out.println(printer.print("test3.txt", "printer2", access_token));
+		System.out.println(printer.print("test4.txt", "printer1", access_token));
+		System.out.println(printer.print("test5.txt", "printer1", access_token));
+		System.out.println(printer.queue("printer2", access_token));
+		System.out.println(printer.queue("printer1", access_token));
+		System.out.println(printer.setConfig("printers", "2", access_token));
+		System.out.println(printer.readConfig("printers", access_token));
+		System.out.println(printer.topQueue("printer1", 3, access_token));
+		System.out.println(printer.queue("printer1", access_token));
+		System.out.println(printer.status("printer1", access_token));
+		System.out.println(printer.status("printer2", access_token));
+		System.out.println(printer.restart(access_token));
+		access_token = printer.authenticate(Configuration.testUsername, pwHash, Configuration.validSessionTime);
+		System.out.println(printer.queue("printer1", access_token));
+		System.out.println(printer.queue("printer2", access_token));
+		System.out.println(printer.stop(access_token));
 
 		// Clear the database
 		db.clear();

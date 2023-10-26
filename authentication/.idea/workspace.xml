@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a52af00a-d0cc-48a0-a968-9c6d00e4ce4d" name="Changes" comment="" />
+    <list default="true" id="a52af00a-d0cc-48a0-a968-9c6d00e4ce4d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/client/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterServant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterServant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterService.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -21,9 +27,22 @@
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
-            <expand />
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="authentication" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="authentication" type="f1a62948:ProjectNode" />
+                <item name="Run Configurations" type="7b0102dc:RunConfigurationsNode" />
+              </path>
+            </expand>
             <select />
           </tree_state>
         </projects_view>

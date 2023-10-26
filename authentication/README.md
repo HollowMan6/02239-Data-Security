@@ -28,7 +28,7 @@ In our implementation, for password hashing, our design employs the Bcrypt hashi
 
 To utilize the printing service, the user must authenticate themselves with the server using their username and associated password. The client-side enrollment process is not implemented; instead, test user credentials are added to the database prior to initiating the service. If a user attempts to use the service without authentication, the server will respond with a corresponding message instructing the client to authenticate first.
 
-Upon successful authentication, a related session is established, and the server issues a unique string as a cookie to the client. This session remains valid for a defined period. During this time, the client can access the print service using the provided cookie, without the need for reauthentication. When the session expires or if the user performs stop or restart operations, reauthentication is required to continue usage.
+Upon successful authentication, a related session is established, and the server issues a unique string as a access token to the client. This session remains valid for a defined period. During this time, the client can access the print service using the provided access token, without the need for reauthentication. When the session expires or if the user performs stop or restart operations, reauthentication is required to continue usage.
 
 ### Password Storage
 
@@ -72,7 +72,7 @@ In this type of request, the client sends its username and password. Upon receiv
 
 #### Authenticated Sessions
 
-To establish an authenticated session, an initial authentication is necessary. The process for the initial authentication is identical to individual request authentication. Upon successful authentication, a session object is created along with a UUID. This pair is stored in a map for future access, and the UUID is sent to the client as a cookie. This session remains valid for a specified period, which can be determined by the client during the initial authentication. Within this timeframe, the client does not need to resend their username and password; the previously obtained cookie is sufficient. When the server receives the cookie, it checks the associated session. If the session has not expired, the client can continue their operation. If it has expired, the outdated session is removed, and the client must reauthenticate to establish a new session. Regarding the security of the cookie, assuming the use of TLS, we can assert that the confidentiality and integrity of the cookie are ensured.
+To establish an authenticated session, an initial authentication is necessary. The process for the initial authentication is identical to individual request authentication. Upon successful authentication, a session object is created along with a UUID. This pair is stored in a map for future access, and the UUID is sent to the client as a access token. This session remains valid for a specified period, which can be determined by the client during the initial authentication. Within this timeframe, the client does not need to resend their username and password; the previously obtained access token is sufficient. When the server receives the access token, it checks the associated session. If the session has not expired, the client can continue their operation. If it has expired, the outdated session is removed, and the client must reauthenticate to establish a new session. Regarding the security of the access token, assuming the use of TLS, we can assert that the confidentiality and integrity of the access token are ensured.
 
 ### Password Verification
 
@@ -104,7 +104,7 @@ This software follows a client-server architecture, with the interaction between
 | status          | Retrieves the status of a specific printer.                          |
 | readConfig      | Obtains the value of a specified parameter.                          |
 | setConfig       | Sets the value of a specified parameter.                             |
-| authenticate    | Performs user authentication and returns a session cookie.          |
+| authenticate    | Performs user authentication and returns a session access token.     |
 
 #### Design
 
@@ -144,9 +144,9 @@ The detailed implementation of the authentication mechanism is as follows:
    BCrypt.checkpw(password, passwordHash);
    ```
 
-   Subsequently, to remember the user, a session object is created based on the client's requested valid time length. A cookie (a UUID) is also generated to associate the client with this session. The user receives the cookie as a response.
+Subsequently, to remember the user, a session object is created based on the client's requested valid time length. An access token (a UUID) is also generated to associate the client with this session. The user receives the access token as a response.
 
-3. **Authentication Session:** After the initial authentication, the client can use the cookie to perform various actions within the valid period. Upon receiving the cookie, the server retrieves the associated session object and checks whether the session is outdated. If it is, the session is removed, and the client is instructed to authenticate again. If not, the client is deemed authenticated and allowed to call the target method. The logic to check the session is:
+3. **Authentication Session:** After the initial authentication, the client can use the access token to perform various actions within the valid period. Upon receiving the access token, the server retrieves the associated session object and checks whether the session is outdated. If it is, the session is removed, and the client is instructed to authenticate again. If not, the client is deemed authenticated and allowed to call the target method. The logic to check the session is:
 
 ```java
 public boolean isAuthenticated() {
@@ -168,7 +168,7 @@ Additionally, our application ensures that passwords are not transmitted in plai
 
 #### Password Verification
 
-Upon receiving login credentials (username, password) from the client, the server compares the password with the BCrypt hash stored in the database (as described in section 2.3). Certain guidelines were followed to enhance security. Failed authentication responses were deliberately kept generic, making it impossible for attackers to conduct user enumeration attacks. Additionally, the authentication response consistently takes the same amount of time, whether the user is in the database or not. This prevents time-based attacks. After verification, the server sends the client a secure cookie for subsequent service requests. The cookie is generated using Java’s random UUID method, passing statistical random number generator tests. The client can terminate the session by requesting a stop command, which removes the cookie. We also implement session timeout to force users to log in again after a certain period. We use persistent cookies over non-persistent ones, which may pose a weakness if the cookie is cached and has not yet expired. This allows an attacker who obtains it to use it, unlike non-persistent cookies, which expire as soon as the session ends.
+Upon receiving login credentials (username, password) from the client, the server compares the password with the BCrypt hash stored in the database (as described in section 2.3). Certain guidelines were followed to enhance security. Failed authentication responses were deliberately kept generic, making it impossible for attackers to conduct user enumeration attacks. Additionally, the authentication response consistently takes the same amount of time, whether the user is in the database or not. This prevents time-based attacks. After verification, the server sends the client a secure access token for subsequent service requests. The access token is generated using Java’s random UUID method, passing statistical random number generator tests. The client can terminate the session by requesting a stop command, which removes the access token. We also implement session timeout to force users to log in again after a certain period. We use persistent access tokens over non-persistent ones, which may pose a weakness if the access token is cached and has not yet expired. This allows an attacker who obtains it to use it, unlike non-persistent access tokens, which expire as soon as the session ends.
 
 #### Password Storage
 
@@ -184,7 +184,7 @@ Certain features affecting authentication, such as password strength checks and 
 
 ### Logging
 
-To demonstrate that users are always authenticated before using a service, we log the user who requested the service and the method name. This logging occurs in the authenticate method after password and cookie checks, ensuring that requests pass through authentication first.
+To demonstrate that users are always authenticated before using a service, we log the user who requested the service and the method name. This logging occurs in the authenticate method after password and access token checks, ensuring that requests pass through authentication first.
 
 Sample log output for invoking the print service:
 
