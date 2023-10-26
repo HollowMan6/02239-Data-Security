@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a52af00a-d0cc-48a0-a968-9c6d00e4ce4d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterServant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterServant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterService.java" afterDir="false" />
-    </list>
+    <list default="true" id="a52af00a-d0cc-48a0-a968-9c6d00e4ce4d" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

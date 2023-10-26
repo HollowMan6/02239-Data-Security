@@ -1,9 +1,5 @@
 package dtu.compute.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 public class Configuration {
 	public static final String testUsername = "testuser";
 	public static final String testUserPassword = "password";

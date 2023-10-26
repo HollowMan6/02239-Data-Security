@@ -26,11 +26,13 @@ In our implementation, for password hashing, our design employs the Bcrypt hashi
 <!-- > (max 3 pages)
 > This section should provide a short introduction to the specific problem of password based authentication in client/server systems and analyse the problems relating to password storage (on the server), password transport (between client and server) and password verification. -->
 
-To utilize the printing service, the user must authenticate themselves with the server using their username and associated password. The client-side enrollment process is not implemented; instead, test user credentials are added to the database prior to initiating the service. If a user attempts to use the service without authentication, the server will respond with a corresponding message instructing the client to authenticate first.
+The databased is provisioned with a testuser and its password to test the application. Moreover, the server manages the user authentication using _printer.authenticate()_ primitive which takes users' username and password hash. If the printer service is tried to be accessed prior authentication, an error message is returned to user.
 
-Upon successful authentication, a related session is established, and the server issues a unique string as a access token to the client. This session remains valid for a defined period. During this time, the client can access the print service using the provided access token, without the need for reauthentication. When the session expires or if the user performs stop or restart operations, reauthentication is required to continue usage.
+If the authentication is successful, the server creates a session for the user an issues a unique string as a access token to the client using UUID and session time. Whilst token's limited time validity,  the client can access the print service by calling each API and providing the access token in the request, without the need for reauthentication. Reauthentication is required only in case user performs stop or restart operations or when user's session expires.
 
 ### Password Storage
+
+For our implementation we opted to 
 
 For an authentication system, two fundamental components are necessary: an authentication secret and a secure method of storage. In our case, the authentication secret comprises the user's username and password. To use these credentials securely, the server must be able to store and retrieve them, associating each password with the respective user. Storing the client's password in plain text is not advisable, as it exposes a vulnerability in case of storage compromise. Instead, the password is hashed, preventing the attacker from retrieving the original password from the hashed string. To further enhance security against attacks like dictionary or rainbow table attacks, the password is hashed together with a unique salt before being saved.
 
@@ -89,71 +91,80 @@ By pre-hashing the plaintext password on the client side, we mitigate the risk o
 ## Design and Implementation
 <!-- > (max 3 pages including diagrams)
 > A software design for the proposed solution must be presented and explained, i.e. why is this particular design chosen. The implementation of the designed authentication mechanism in the client server application must also be outlined in this section. -->
-### Authentication Security Lab: System Overview
-
-This software follows a client-server architecture, with the interaction between the two implemented through Java Remote Method Invocation (RMI). The server exposes a set of methods for the client to utilize, detailed in Table 1 below:
+The project follows a client-server architecture, with the interaction between the two implemented through Java Remote Method Invocation (RMI). The server exposes a set of methods for the client to utilize, detailed in the table below:
 
 | Method          | Description                                                        |
 |-----------------|--------------------------------------------------------------------|
-| print           | Prints a specified file on the designated printer.                 |
-| queue           | Lists the print queue for a particular printer.                     |
-| topQueue        | Moves a job to the top of the queue for a printer.                  |
-| start           | Initiates the printer service.                                      |
-| stop            | Halts the printer service.                                           |
-| restart         | Restarts the printer service.                                        |
-| status          | Retrieves the status of a specific printer.                          |
-| readConfig      | Obtains the value of a specified parameter.                          |
-| setConfig       | Sets the value of a specified parameter.                             |
+| print           | Prints file filename on the specified printer.                 |
+| queue           | Lists the print queue for a given printer on the user's display in lines of the form \<job number>   \<file name>                     |
+| topQueue        | Moves job to the top of the queue.                  |
+| start           | Starts the print server.                                      |
+| stop            | Stops the print server.                                           |
+| restart         | Stops the print server, clears the print queue and starts the print server again.                                        |
+| status          | Prints status of printer on the user's display.                          |
+| readConfig      | Prints the value of the parameter on the print server to the user's display.                          |
+| setConfig       | Sets the parameter on the print server to value.                             |
 | authenticate    | Performs user authentication and returns a session access token.     |
 
 #### Design
 
-The primary architecture of the software is illustrated in Figure 1.
+The architecture of the project is illustrated in the following diagram.
+```
+.
+└── dtu
+    └── compute
+        ├── client
+        │   └── Client.java
+        ├── server
+        │   ├── print
+        │   │   ├── Printer.java
+        │   │   ├── PrinterServant.java
+        │   │   └── PrinterService.java
+        │   ├── Server.java
+        │   └── Session.java
+        └── util
+            ├── Configuration.java
+            ├── Crypto.java
+            └── DB.java
+```
 
 This architecture comprises several key components:
 
-1. **Client:** Simulates user behavior within the printing system. The client can execute all actions outlined in Table 1. Authentication is typically the initial step, while stopping the service is the final one.
+1. **dtu.compute.client.Client:** Simulates user behavior within the printing system. The client can execute all actions outlined in table above. Authentication is typically the initial step, while stopping the service is the final one.
 
-2. **Session:** Manages user sessions. During initial authentication, the client can specify a valid time parameter to determine the session's duration. Within this period, the client doesn't need to resend their username and password.
+2. **dtu.compute.server.print:** Emulates services provided by a physical printer. Details are outlined in table above. To use the printer service, the user must be authenticated, and the printer service must be started.
 
-3. **Printer Service:** Emulates services provided by a physical printer. Details are outlined in Table 1. To use the printer service, the user must be authenticated, and the printer service must be started.
+3. **dtu.compute.server.Session:** Manages user sessions. During initial authentication, the client can specify a valid time parameter to determine the session's duration. Within this period, the client doesn't need to resend their username and password.
 
-4. **Authentication System:** Responsible for authenticating clients. The implementation of this authentication mechanism is further detailed in section 3.2.
+4. **dtu.compute.util.DB:** Utilizes a database to store and manage user information. Considering concurrent access and manipulation scenarios, database systems typically offer satisfactory performance due to integrated isolation mechanisms. PostgreSQL is chosen as the specific database system due to its maturity, widespread use, and trustworthiness in handling storage needs without significant security concerns. Instead of setting up a local database, a cloud service provided by ElephantSQL is employed to allow for easy scalability with an increasing user base and to mitigate potential single point of failure issues associated with centralized database systems.
 
-5. **Storage System:** Utilizes a database to store and manage user information. Considering concurrent access and manipulation scenarios, database systems typically offer satisfactory performance due to integrated isolation mechanisms. PostgreSQL is chosen as the specific database system due to its maturity, widespread use, and trustworthiness in handling storage needs without significant security concerns. Instead of setting up a local database, a cloud service provided by ElephantSQL is employed to allow for easy scalability with an increasing user base and to mitigate potential single point of failure issues associated with centralized database systems.
+5. **dtu.compute.util.Crypto:** Responsible for authenticating clients. The implementation of this authentication mechanism is further detailed in section 3.2.
 
-6. **Unit Test:** Specifically for the database component, this verifies the normal functioning of the database system. It assesses three major functions: adding a user, retrieving a user's password by username, and clearing the database.
-
-7. **Integration Test:** Focuses on the authentication function, ensuring that both the authentication system and session component operate correctly.
-
-8. **Log System:** Records user behavior for future examination. The Log4j2 library is used for logging, with logs organized by date and size (up to 10 KB).
+8. **Log System:** Records user behavior for future examination. The Log4j2 library is used for logging, with logs organized by date and size (up to 100 KB).
 
 #### Implementation of Authentication Mechanism
 
 The detailed implementation of the authentication mechanism is as follows:
 
-1. **Insert Test Users:** The project does not implement interactive user registration. Therefore, user information must be inserted into the database using the `addUser` method. Initially, the test user password is retrieved and hashed using the PBKDF2 algorithm with SHA512, resulting in a password hash. Before storing the password in the database, it is additionally hashed with a unique salt using the jBcrypt library. The hashed password, along with the username, is then saved to the database.
+1. **Insert Test Users:** Since the project does not implement interactive user registration. Therefore, user information must be inserted into the database using the `addUser` method. Initially, the test user password is retrieved and hashed using the PBKDF2 algorithm with SHA512, resulting in a password hash. Before storing the password in the database, it is additionally hashed with a unique salt using the jBcrypt library. The hashed password, along with the username, is then saved to the database.
 
-   ```java
-   authRepository.addUser(testUsername, BCrypt.hashpw(testUserPasswordHash, BCrypt.gensalt()));
-   ```
+    ```java
+    db.addUser(Configuration.testUsername, Crypto.salt(pwHash));
+    ```
 
 2. **Client Initiates Authentication:** To use the printing service, the client must first authenticate itself by sending the username, password, and a parameter specifying the valid session time. Upon receiving this information, the server retrieves the client's associated hashed password from the database. If the desired information is not found in the database (indicating an invalid username), an appropriate response message is sent. The server then verifies the correctness of the sent password using the jBcrypt library. If correct, authentication is deemed successful; otherwise, it fails. The exact method used is:
 
-   ```java
-   BCrypt.checkpw(password, passwordHash);
-   ```
+    ```java
+    BCrypt.checkpw(userHash, dbHash)
+    ```
 
-Subsequently, to remember the user, a session object is created based on the client's requested valid time length. An access token (a UUID) is also generated to associate the client with this session. The user receives the access token as a response.
+    Subsequently, to remember the user, a session object is created based on the client's requested valid time length. An access token (a UUID) is also generated to associate the client with this session. The user receives the access token as a response.
 
 3. **Authentication Session:** After the initial authentication, the client can use the access token to perform various actions within the valid period. Upon receiving the access token, the server retrieves the associated session object and checks whether the session is outdated. If it is, the session is removed, and the client is instructed to authenticate again. If not, the client is deemed authenticated and allowed to call the target method. The logic to check the session is:
 
-```java
-public boolean isAuthenticated() {
-    long currentTimeStamp = System.currentTimeMillis();
-    return currentTimeStamp − loginBeginTime <= (validTime * 1000L);
-}
-```
+    ```java
+    System.currentTimeMillis() - startTime <= (validTime * 1000L);
+    ```
 
 ## Evaluation
 <!-- > (max 2 pages)
@@ -189,8 +200,10 @@ To demonstrate that users are always authenticated before using a service, we lo
 Sample log output for invoking the print service:
 
 ```
-2022-10-31 15:10:08 INFO User 'user1' is requesting the use of service 'print'
-2022-10-31 15:10:08 INFO printer1-test1.txt has been added to the printing queue
+2023-10-26 17:13:10 INFO  testuser authenticates OK
+2023-10-26 17:13:10 INFO  testuser requesting: start
+2023-10-26 17:13:10 INFO  testuser requesting: print
+2023-10-26 17:13:10 INFO  printer1-test1.txt added to printing queue
 ```
 
 ## Conclusion

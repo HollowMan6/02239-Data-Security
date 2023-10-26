@@ -16,10 +16,9 @@ public class Client {
 			throws MalformedURLException, NotBoundException, RemoteException {
 
 		String pwHash = Crypto.hash(Configuration.testUserPassword);
-		// Add test user to database
+		// Insert a test user into the database.
 		db.addUser(Configuration.testUsername, Crypto.salt(pwHash));
 
-		// The following codes describe a typical procedure to use the printing service
 		PrinterService printer = (PrinterService) Naming.lookup(Configuration.url + "/printer");
 		String access_token = printer.authenticate(Configuration.testUsername, pwHash, Configuration.validSessionTime);
 		System.out.println(printer.start(access_token));
@@ -42,7 +41,6 @@ public class Client {
 		System.out.println(printer.queue("printer2", access_token));
 		System.out.println(printer.stop(access_token));
 
-		// Clear the database
 		db.clear();
 	}
 

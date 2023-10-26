@@ -168,15 +168,14 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 	public String authenticate(String username, String password, int validSessionTime) throws RemoteException {
 		String passwordHash = db.getUserPasswordHashByName(username);
 
-		if (passwordHash == null) // Make sure it's time constant
+		if (passwordHash == null) // For time constant
 			passwordHash = Configuration.randomHash;
 
 		if (!Crypto.compare(password, passwordHash)) {
 			logger.info(String.format("Authentication failed for %s", username));
 			return "";
 		}
-		// If authentication success, return an uuid as access_token and add the associated
-		// session
+
 		String uuid = (UUID.randomUUID()).toString();
 		Session session = new Session(validSessionTime);
 		sessions.put(uuid, session);
