@@ -32,7 +32,30 @@ If the authentication is successful, the server creates a session for the user a
 
 ### Password Storage
 
-For our implementation we opted to 
+We decided to implement our solution using a DBMS. Our design choice was driven by an analysis of desirable and provided features for each suggested method of password storing mechanism. Hereby a detailed description of our reasoning: 
+
+![](../features.png)
+
+
+////////////////////////////////////////////
+the description will be by feature and not by storage type.
+remember to add how we protect DBMS from SQL injection
+
+NOTE: 
+"non expert" feature means whether a non expert would be able to be admin of the data. For system file, sys call provide interface to manage files and permissions. For DBMS also there are simple APIs to use. For pub files the developer could implement or use shitty crypto stuff and 
+fuck up.
+
+"memory leaks" are problematic when handling encryption/decryption on server's memory if malware is installed. dbms should be more safe in that sense
+
+"reletional ops/scalability": only in DBMS it is possible to extend funtionalities such as join() tables to have more granularity: some users only to specific printers, different prices pkg depending on user type( student, staff...), limiting file formats on printers ecc...
+about "scalability": write operations on big file are inefficient compared to fast indexed in-row modifications in dbms 
+
+/////////////////////////////////////////////
+
+
+
+
+
 
 For an authentication system, two fundamental components are necessary: an authentication secret and a secure method of storage. In our case, the authentication secret comprises the user's username and password. To use these credentials securely, the server must be able to store and retrieve them, associating each password with the respective user. Storing the client's password in plain text is not advisable, as it exposes a vulnerability in case of storage compromise. Instead, the password is hashed, preventing the attacker from retrieving the original password from the hashed string. To further enhance security against attacks like dictionary or rainbow table attacks, the password is hashed together with a unique salt before being saved.
 
