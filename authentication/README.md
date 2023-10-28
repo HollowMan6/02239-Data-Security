@@ -26,7 +26,7 @@ In our implementation, for password hashing, our design employs the Bcrypt hashi
 <!-- > (max 3 pages)
 > This section should provide a short introduction to the specific problem of password based authentication in client/server systems and analyse the problems relating to password storage (on the server), password transport (between client and server) and password verification. -->
 
-The databased is provisioned with a testuser and its password to test the application. Moreover, the server manages the user authentication using _printer.authenticate()_ primitive which takes users' username and password hash. If the printer service is tried to be accessed prior authentication, an error message is returned to user.
+The databased is provisioned with a testuser and its password to test the application. Moreover, the server manages the user authentication using _printer.authenticate()_ primitive which takes users' username and password hash. If the printer service tried to be accessed prior authentication, an error message is returned to user.
 
 If the authentication is successful, the server creates a session for the user an issues a unique string as a access token to the client using UUID and session time. Whilst token's limited time validity,  the client can access the print service by calling each API and providing the access token in the request, without the need for reauthentication. Reauthentication is required only in case user performs stop or restart operations or when user's session expires.
 
@@ -39,6 +39,7 @@ We decided to implement our solution using a DBMS. Our design choice was driven 
 
 #### Confidentiality
 DBMS ensures strong data confidentiality through already implemented encryption and precise access controls, guarding user credentials securely. System files offer basic confidentiality based on file permissions, while public files rely on encryption and access controls to protect data privacy.
+
 #### Integrity
 DBMS maintain data integrity via transaction management and data constraints, guaranteeing consistency. System files and public files use file permissions and sys call to garantee this property, therefore relying on safe kernel primitives.
 
@@ -145,21 +146,22 @@ This architecture comprises several key components:
 
 The detailed implementation of the authentication mechanism is as follows:
 
-1. **Insert Test Users:** Since the project does not implement interactive user registration. Therefore, user information must be inserted into the database using the `addUser` method. Initially, the test user password is retrieved and hashed using the PBKDF2 algorithm with SHA512, resulting in a password hash. Before storing the password in the database, it is additionally hashed with a unique salt using the jBcrypt library. The hashed password, along with the username, is then saved to the database.
+1. **Addition of Test Users:** 
+ `addUser` method is used to insert the users to the database since we don't support it through any interactive way from the frontend. The test user password is retrieved from `Configuration.java` and hashed using the PBKDF2 algorithm with SHA512, and then additionally hased with a unique salt using the jBcrypt library insde `Crypto.java`. The hashed password, along with the username, is then saved to the database. The list of users to be added 
 
     ```java
     db.addUser(Configuration.testUsername, Crypto.salt(pwHash));
     ```
 
-2. **Client Initiates Authentication:** To use the printing service, the client must first authenticate itself by sending the username, password, and a parameter specifying the valid session time. Upon receiving this information, the server retrieves the client's associated hashed password from the database. If the desired information is not found in the database (indicating an invalid username), an appropriate response message is sent. The server then verifies the correctness of the sent password using the jBcrypt library. If correct, authentication is deemed successful; otherwise, it fails. The exact method used is:
+2. **Authentication of the client on the server:** The client authenticates itself using username, password and further uses a parameter to specify the valid session time using `authenticate` method in `PrintServant.java`. The server then retrieves the client's data from the database based upon the username and checkPassword based upon the hashes from user and database. An appropriate response will be send to the end user if the information is not found in the database such as due to some invalid username. Finally the authentication is deemed successful or a failure based upon its verification by jBcrypt library. The exact method used is:
 
     ```java
     BCrypt.checkpw(userHash, dbHash)
     ```
 
-    Subsequently, to remember the user, a session object is created based on the client's requested valid time length. An access token (a UUID) is also generated to associate the client with this session. The user receives the access token as a response.
+    This method will also create a session object for the user based upon the time requested from the client in order to remember it and an access token based upon uuid will be created subsequently to remember the client with this session which will be sent as a response to the user.
 
-3. **Authentication Session:** After the initial authentication, the client can use the access token to perform various actions within the valid period. Upon receiving the access token, the server retrieves the associated session object and checks whether the session is outdated. If it is, the session is removed, and the client is instructed to authenticate again. If not, the client is deemed authenticated and allowed to call the target method. The logic to check the session is:
+3. **Authentication Session:** The client uses the access token generated during the initial authentication to perform the different printer operations within the validity period using `isAuthenticated` method inside `PrintServant.java`. The server validates the access token for each request to check if the session is outdated or not. In case, its outdated the client needs to reauthenticate itself and its session data is removed from the Sessions mapping. The logic to check the session is:
 
     ```java
     System.currentTimeMillis() - startTime <= (validTime * 1000L);
