@@ -34,58 +34,34 @@ If the authentication is successful, the server creates a session for the user a
 
 We decided to implement our solution using a DBMS. Our design choice was driven by an analysis of desirable and provided features for each suggested method of password storing mechanism. Hereby a detailed description of our reasoning: 
 
-![](./features.png)
+![](../features.png)
 
 
-////////////////////////////////////////////
-the description will be by feature and not by storage type.
-remember to add how we protect DBMS from SQL injection
+#### Confidentiality
+DBMS ensures strong data confidentiality through already implemented encryption and precise access controls, guarding user credentials securely. System files offer basic confidentiality based on file permissions, while public files rely on encryption and access controls to protect data privacy.
+#### Integrity
+DBMS maintain data integrity via transaction management and data constraints, guaranteeing consistency. System files and public files use file permissions and sys call to garantee this property, therefore relying on safe kernel primitives.
 
-NOTE: 
-"non expert" feature means whether a non expert would be able to be admin of the data. For system file, sys call provide interface to manage files and permissions. For DBMS also there are simple APIs to use. For pub files the developer could implement or use shitty crypto stuff and 
-fuck up.
+#### Redundance
+While DBMS support redundancy by offering various data replication and backup mechanisms (such as transactional, snapshot and merge), files provide limited redundancy options, mainly through per-file backup processes. In any case, even if the issue is addressed differently, all the three options provide this feature.
 
-"memory leaks" are problematic when handling encryption/decryption on server's memory if malware is installed. dbms should be more safe in that sense
+#### Concurrency
+In terms of concurrent data access, DBMS efficiently manage multiple users through atomic operations and transactions on the tables. System files are provided support for concurrency via specific kernel sys call, though synchronization with backup data has to be maintained separetely by developers. In this sense, public files are even trickier to handle since they are not provided with a default solution and deserve a concurrency implementation on their own, e.g, through semaphores.
 
-"reletional ops/scalability": only in DBMS it is possible to extend funtionalities such as join() tables to have more granularity: some users only to specific printers, different prices pkg depending on user type( student, staff...), limiting file formats on printers ecc...
-about "scalability": write operations on big file are inefficient compared to fast indexed in-row modifications in dbms 
+#### Non-expert Usability
+DBMS offer user-friendly APIs that make them accessible to developers and administrators. System files provide basic sys calls for file management, requiring basic level of expertise. Public files, however, need cryptographic implementations, which can be challenging for non-experts and are potentially dangerous if non-standardized or personalized crypto libraries are used instead of reliable ones. 
 
-/////////////////////////////////////////////
+#### Indexing
+DBMS excel in data indexing, with tweakable data granularity garanteed by  relational operations, significantly enhancing data access efficiency. On the other hand, files lack indexing support, leading to slower data retrieval and adding non-negligible overhead to the server. Also write operations on big file are inefficient compared to fast indexed in-row modifications in DBMS.
 
+#### Relational ops/scalability
+DBMS are the only one supporting relational operations. This is extemely useful when the database architecture has to be extended in some way. In this case, we may want to give some users specific access to only certain printers, or provide different printing pricing offers depending on user type (say staff, student or guest). 
 
+#### Memory leaks safety
+Memory leaks generally represent a critical concern in the secure storage of user credentials. DBMS offer an inherent advantage by managing encryption and decryption processes in a controlled environment, minimizing the risk, for instance by spliting data at random addresses. This is because DBMS operate within a structured framework that allocates and releases memory systematically. System files rely on kernel memory management mechanism and are handled in kernel mode via sys calls. On the other hand, when dealing with encryption and decryption within public files, there is a higher vulnerability to memory leaks, especially in the presence of malicious memory dumpers or unsafe crypto libraries. 
 
-
-
-
-For an authentication system, two fundamental components are necessary: an authentication secret and a secure method of storage. In our case, the authentication secret comprises the user's username and password. To use these credentials securely, the server must be able to store and retrieve them, associating each password with the respective user. Storing the client's password in plain text is not advisable, as it exposes a vulnerability in case of storage compromise. Instead, the password is hashed, preventing the attacker from retrieving the original password from the hashed string. To further enhance security against attacks like dictionary or rainbow table attacks, the password is hashed together with a unique salt before being saved.
-
-Regarding specific storage methods, three options with their respective advantages and drawbacks exist.
-
-#### System File
-
-A standard system file is utilized, providing a degree of confidentiality and integrity based on file permissions. The server can employ data formats like XML or JSON to store user data, making it easily readable and writable within Java code. However, there are notable drawbacks. Firstly, anyone with root privileges can access the system file's contents, making it susceptible to privilege escalation attacks. Secondly, system files lack robust support for concurrent access, potentially leading to data inconsistency and security concerns. Moreover, the absence of indexing for stored data results in lower access efficiency compared to a DBMS, making it easier for attackers to carry out DoS attacks.
-
-#### Public File
-
-A public file can serve as an alternative storage option for secrets. The server augments this approach with cryptographic safeguards and data access controls. By employing a suitable data format (e.g., XML, JSON), the server encrypts the entire data structure before writing and decrypts it before reading. This procedure ensures confidentiality. Additionally, the server can establish file protections to restrict access to authorized users only. For instance, the user responsible for running the print server can be granted exclusive permissions for reading and writing to the file.
-
-#### Database Management Systems (DBMS)
-
-Database Management Systems represent the widely accepted industry standard for storing user credentials. This approach involves the use of specialized database software to store values. The server developer specifies the data format, and the database software ensures the confidentiality and integrity of the data. Furthermore, the database software provides interfaces compatible with the most popular programming languages. However, one significant drawback of databases is their susceptibility to SQL injection attacks. Given the widespread use of databases for data storage, there exists a variety of SQL injection techniques that attackers can employ. Many websites also lack sufficient protections against these types of attacks. Additionally, using a database necessitates safeguarding the usernames and passwords used by the server to connect to the database, introducing an additional layer of sensitive information and expanding the potential attack surface.
-
-#### Advantages of DBMS
-
-Considering the aforementioned discussion, each of the three methods has its own set of advantages and disadvantages. However, in light of the specific application's use case, Database Management Systems (DBMS) emerge as the preferred option for the following reasons:
-
-1. **Multi-user Support:** Printing services often need to accommodate multiple users simultaneously. The access performance is crucial in such scenarios. A database builds an index for stored data, significantly enhancing access performance. It also supports concurrent reads and writes, which is essential as the number of users grows.
-
-2. **User Registration and Password Modification:** In real-world scenarios, the application must allow users to register and change passwords. This involves both data retrieval and manipulation. Without proper isolation mechanisms, concurrent operations can lead to inconsistencies in stored information, posing significant security risks. Unlike system and public files, most DBMS provide mature schemes to address the challenges posed by concurrent operations. For example, PostgreSQL offers the serializable isolation level to mitigate issues like dirty reads, non-repeatable reads, phantom reads, and serialization anomalies.
-
-3. **Protection Against SQL Injection:** While databases can be vulnerable to SQL injection attacks, prepared statements can be employed to counter this threat. This approach involves not concatenating user input into SQL statements that will ultimately be executed. Instead, all SQL queries are defined first, and then each parameter (user's input) is passed to the query later. In essence, nothing within the user's input is treated as a SQL statement. This method effectively defends against SQL injection attacks.
-
-4. **Scalability and Management:** As the volume of user information increases, databases can be easily scaled up and managed compared to locally stored bulky files. 
-
-These factors collectively position DBMS as the preferred choice for securely managing user credentials.
+#### SQL injections safety
+DBMS are, in this case, the only vulnerable storage type to such attacks if input sanitization and checks are not properly implemented. Therefore, as we did, they must be protected using prepared statements and query parameterization to mitigate the risk effectively. 
 
 ### Password Transport
 
