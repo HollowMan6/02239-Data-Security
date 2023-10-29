@@ -65,29 +65,29 @@ Memory leaks generally represent a critical concern in the secure storage of use
 DBMS are, in this case, the only vulnerable storage type to such attacks if input sanitization and checks are not properly implemented. Therefore, as we did, they must be protected using prepared statements and query parameterization to mitigate the risk effectively.
 
 
-### Password Transport
+### Password Transmission
+In order to ensure the confidentiality and integrity of the information sent to the server, our system uses TLS which prevents an attacker to learn about the transmitted information as well as prevent its tampering during transmission. For this purpose, we will authenticate individual requests and look into the workings of the authenticated sessions.
 
-During the transmission of passwords, it is paramount to guarantee the confidentiality and integrity of the information being sent. This means preventing an attacker from learning the original transmitted information or tampering with the data sent to the receiver. To ensure secure transmission, the developed software assumes the use of TLS (Transport Layer Security). The password transport procedure is divided into two parts: individual request authentication and authenticated sessions.
+#### Authentication of Individual Requests
+Client will sent its username and password to the server and server will retrieve the corresponding hash of the password from the database using the clien's username. Then server uses the hash algorithm PDKDF2 to compare the original hash of the password with the transmitted one. In case of a match we proceees further as its a success case.
 
-#### Individual Request Authentication
 
-In this type of request, the client sends its username and password. Upon receiving this information, the server retrieves the corresponding hashed password from the storage system using the provided username. Subsequently, the server uses a predefined hash algorithm to compare whether the sent password matches the obtained password hash. A match indicates success, and vice versa.
+#### Authenticating Sessions for Clients
 
-#### Authenticated Sessions
 
-To establish an authenticated session, an initial authentication is necessary. The process for the initial authentication is identical to individual request authentication. Upon successful authentication, a session object is created along with a UUID. This pair is stored in a map for future access, and the UUID is sent to the client as a access token. This session remains valid for a specified period, which can be determined by the client during the initial authentication. Within this timeframe, the client does not need to resend their username and password; the previously obtained access token is sufficient. When the server receives the access token, it checks the associated session. If the session has not expired, the client can continue their operation. If it has expired, the outdated session is removed, and the client must reauthenticate to establish a new session. Regarding the security of the access token, assuming the use of TLS, we can assert that the confidentiality and integrity of the access token are ensured.
+Authentication fo individual sessions is required before establishing an authenticated session. Upon successful initial authentication, a session object is created alongside a UUID and we store this pair inside a map for future access, with the UUID sent to client as an access token. Now this established session is valid for a specific timeframe during which client can authenticate itself with doing the steps for initial individual authentication using its access token. The server checks the associated session on the basis of this token in order to find out whether the session is expired or not. Since we are using TLS for transmission of data, it ensures the confidentiality and integrity of the access token.
 
-### Password Verification
+### Verification of the Password
+The client sends its username and password to the server which uses JDBC (Java Database Connectivity) in order to access the database and retrieve hashed password correspoding to the user. Then we use BCrypt library jBCrypt's method `checkpwcandidate, hashed)` to verify this received password. Similarly when registering the user, the same library is used to hash the passowrd prior to saving it in the database using the method `hashpw(password, BCrypt.gensalt())`.
 
-After receiving the username and password from the client, the server utilizes JDBC (Java Database Connectivity) to access the database and retrieve the hashed password corresponding to the server. In our case, we employ a Java version of the Bcrypt library named jBCrypt. This library provides the method BCrypt.checkpw(candidate, hashed) to verify the received password. Similarly, in the enrollment procedure, this library is used to hash the client's password before saving it. The specific method employed is BCrypt.hashpw(password, BCrypt.gensalt()).
 
-#### Client-Side Password Hashing
+#### Hashing of Password on the client side
+On the client-side, the user's password is pre-hased using PBKDF2 algorithm which outputs a 256-bit key. This value is then sent to the server. This is done in order to protect the user from vulnerable servers.
 
-Our client application does not transmit the user's password to the server in plaintext. Instead, the password is first pre-hashed using the PBKDF2 algorithm with 100,000 iterations, resulting in a 256-bit output key. This pre-hashed value is what is sent to the server. This approach is not taken to offload computational resources from the server to the client, but rather to protect the user from potentially malicious or incompetent servers.
+Our reasoning for this approach is that a lot of users reuses same passwords across mulitpel servers. So, in case a server administrator decides to exploit user data by collecting these usernames and passwords, then the server could use this to gain access to the user's social media accounts, email etc. in case the user does not have 2FA (two factor authentication) in place. Furthermore, a developer on the server side can also make a mistake of logging all the requests received from users and if password data is in plain text, and server is compromised then the attacker could also gain access to these logs and target users similar to a server administrator.
 
-The rationale behind this decision is that many users tend to reuse passwords across multiple services. If, at any point, the server owner decides to exploit their own users by collecting their usernames and passwords, they could potentially use this data to gain access to other accounts (such as email, bank accounts, social media, etc.) where the user has reused the same password. This risk is not limited to intentional malicious intent; it could also be a mistake where a developer logs all login requests from users, including passwords, as part of the log. If the server is compromised in the future and the attacker gains access to these logs, they can target users in a similar manner.
+Hence, by doing pre-hasing of the password on the client-side we minimize above mentioned risks and provide an additional layer of protection for the users.
 
-By pre-hashing the plaintext password on the client side, we mitigate the risk of such scenarios and provide the user with an additional layer of protection.
 
 ## Design and Implementation
 <!-- > (max 3 pages including diagrams)
