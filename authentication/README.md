@@ -8,19 +8,19 @@
 <!-- > (max 1 page)
 > The introduction should provide a general introduction to the problem of authentication in client/server applications. It should define the scope of the answer, i.e. explicitly state what problems are considered, and outline the proposed solution. Finally, it should clearly state which of the identified goals are met by the developed software. -->
 
-Our implementation stores credentials in a database, so to ensure the following security goals:
+The following security goals must be ensured for a safe client/server application:
 
 - **Protection of User Credentials**: The attacker should be unable to discern user credentials from the communication channel. Also even if the database is compromised, the attacker should not gain access to plain-text user credentials. Finally, supposing a scenario where data leaks happen, brute force attacks should be made impractical to implement.
 
-- **Credential Hashing**: Users' passwords should be protected against brute force and rainbow table attacks. Also they should not be made deterministic, in case multiple users use the same password to autenticate.
+- **Credential Hashing**: Users' passwords should be hashed and protected against brute force and rainbow table attacks. Also the hashes should not be made deterministic, in case multiple users use the same password to autenticate.
 
 - **Server Independence from Plaintext Passwords**: The server doesn't handle users' plaintext passwords. This precaution ensures security in scenarios where the server may be comprimised without client knowledge.
 
-- **Protection Against Database Attacks**: Data should  be safely handled and sanitized in the database to provide protection against db attacks, e.g, SQL injections.
+- **Protection Against Data Leaks**: Data should be safely stored and inputs should be safely handled and sanitized to provide protection against data leaks, memory dumps or SQL injections.
 
-- **Secure Communication**: Enforce secure communication over the internet using TLS, which provides confidentiality and integrity guarantees.
+- **Secure Communication**: Enforce secure communication over the internet using TLS, which provides confidentiality and integrity guarantees. Server identity should always be verified before every interaction.
 
-In our implementation, for password hashing, our design employs the Bcrypt hashing algorithm salted with random seed. On the client side, we use the PBKDF2 hashing algorithm, which provides better robustness and resistance to brute force or rainbow tables attacks. To thwart SQL injection attacks, our software utilizes the java.sql.PreparedStatement interface, and we use the mature open source PostgreSQL database. In our implementation, we will assume the service is deployed using certificates and TLS to ensure the confidentiality and integrity of data transmitted between the client and server.
+For our implementation, we decided to store user passwords in a DBMS. For password hashing, we employ the Bcrypt library and the PBKDF2 hashing algorithm, which provides better robustness and resistance to brute force or rainbow tables attacks. To thwart SQL injection attacks, our software utilizes the java.sql.PreparedStatement interface, and we use the mature open source PostgreSQL database. We assume the service is deployed using certificates and TLS to meet the last security requirement, while all the others are supported by our implementation.
 
 ## Authentication
 <!-- > (max 3 pages)
@@ -38,7 +38,7 @@ We decided to implement our solution using a DBMS. Our design choice was driven 
 
 
 #### Confidentiality
-DBMS ensures strong data confidentiality through already implemented encryption and precise access controls, guarding user credentials securely. System files offer basic confidentiality based on file permissions, while public files rely on encryption and access controls to protect data privacy.
+DBMS ensures strong data confidentiality through already implemented encryption and precise access controls, guarding user credentials securely. System files offer basic confidentiality based on file permissions, while public files rely on encryption to protect data privacy.
 
 #### Integrity
 DBMS maintain data integrity via transaction management and data constraints, guaranteeing consistency. System files and public files use file permissions and sys call to guarantee this property, therefore relying on safe kernel primitives.
@@ -66,28 +66,17 @@ DBMS are, in this case, the only vulnerable storage type to such attacks if inpu
 
 
 ### Password Transmission
-In order to ensure the confidentiality and integrity of the information sent to the server, our system uses TLS which prevents an attacker to learn about the transmitted information as well as prevent its tampering during transmission. For this purpose, we will authenticate individual requests and look into the workings of the authenticated sessions.
+In order to ensure the confidentiality and integrity of the information sent to the server, TLS would prevent an attacker to gain insights about the data by tampering during transmission. Therefore with focused our attention to sessions authentication. On the client-side, the user's password is pre-hased using PBKDF2 algorithm which outputs a 256-bit key and then sent to the server.
 
 #### Authentication of Individual Requests
 Client will sent its username and password to the server and server will retrieve the corresponding hash of the password from the database using the clien's username. Then server uses the hash algorithm PDKDF2 to compare the original hash of the password with the transmitted one. In case of a match we proceees further as its a success case.
 
-
 #### Authenticating Sessions for Clients
-
-
-Authentication fo individual sessions is required before establishing an authenticated session. Upon successful initial authentication, a session object is created alongside a UUID and we store this pair inside a map for future access, with the UUID sent to client as an access token. Now this established session is valid for a specific timeframe during which client can authenticate itself with doing the steps for initial individual authentication using its access token. The server checks the associated session on the basis of this token in order to find out whether the session is expired or not. Since we are using TLS for transmission of data, it ensures the confidentiality and integrity of the access token.
+Authentication fo individual sessions is required before establishing an authenticated session. Upon successful initial authentication, a session object is created alongside a UUID and we store this pair inside a map for future access, with the UUID sent to client as an access token. Now this established session is valid for a specific timeframe during which client can authenticate itself with doing the steps for initial individual authentication using its access token. The server checks the associated session on the basis of this token in order to find out whether the session is expired or not. Furthermore, TLS ensures the confidentiality and integrity of the access token.
 
 ### Verification of the Password
-The client sends its username and password to the server which uses JDBC (Java Database Connectivity) in order to access the database and retrieve hashed password correspoding to the user. Then we use BCrypt library jBCrypt's method `checkpwcandidate, hashed)` to verify this received password. Similarly when registering the user, the same library is used to hash the passowrd prior to saving it in the database using the method `hashpw(password, BCrypt.gensalt())`.
-
-
-#### Hashing of Password on the client side
-On the client-side, the user's password is pre-hased using PBKDF2 algorithm which outputs a 256-bit key. This value is then sent to the server. This is done in order to protect the user from vulnerable servers.
-
-Our reasoning for this approach is that a lot of users reuses same passwords across mulitpel servers. So, in case a server administrator decides to exploit user data by collecting these usernames and passwords, then the server could use this to gain access to the user's social media accounts, email etc. in case the user does not have 2FA (two factor authentication) in place. Furthermore, a developer on the server side can also make a mistake of logging all the requests received from users and if password data is in plain text, and server is compromised then the attacker could also gain access to these logs and target users similar to a server administrator.
-
-Hence, by doing pre-hasing of the password on the client-side we minimize above mentioned risks and provide an additional layer of protection for the users.
-
+The client sends its username and password to the server which uses JDBC (Java Database Connectivity) in order to access the database and retrieve hashed password correspoding to the user. Then we use BCrypt library jBCrypt's method `checkpwcandidate, hashed)` to verify this received password. Similarly when registering the user, the same library is used to hash the passowrd prior to saving it in the database using the method `hashpw(password, BCrypt.gensalt())`, which automatically handles the salt.
+Our reasoning for this approach is that users may use the same passwords across mulitpel servers. So using salt helps in two ways: firstly it ensures users with the same password have different stored hashes in the database. Secondly, same passwords stored in different servers/services are different among each other because of the salt. This ensures that data leaks on a server do not expose all other accounts to other servers or services having the same password.
 
 ## Design and Implementation
 <!-- > (max 3 pages including diagrams)
