@@ -120,7 +120,7 @@ The architecture of the project is illustrated in the following diagram.
 
 This architecture comprises several key components:
 
-1. **dtu.compute.client.Client:** Simulates user behavior within the printing system. The client can execute all actions outlined in table above. Authentication is typically the initial step, while stopping the service is the final one.
+1. **dtu.compute.client.Client:** Simulates user behavior within the printing system. The client can execute all actions outlined in table above.
 
 2. **dtu.compute.server.print:** Emulates services provided by a physical printer. Details are outlined in table above. The user will need to authenticate itself for using the printer before it is started.
 
@@ -168,7 +168,7 @@ Supposing the usage of TLS, many risks regarding channels security are already m
 
 #### Password Verification
 
-After the client submits their username and password, the BCrypt library on the server side is used to compare the provided password with the hash inside the PostgreSQL DB. To bolster security, a set of specific measures are implemented. The system deliberately ensures that failed authentication responses do not disclose any information, thereby preventing potential attackers from conducting user enumeration attacks. Furthermore, the system effectively combats time-based attacks by ensuring that the authentication response consistently takes the same amount of time, regardless of whether the user's information is found in the database or not. Once the verification process is successfully completed, the server issues to the client a secure access token, which will be used for future requests. This access token is generated using Java's random UUID method. Session termination can be requested with the stop command, which will result in the removal of their access token. Additionally, the system incorporates a session timeout feature, prompting users to log in again after a specified time period.
+After the client submits their username and password, the BCrypt library on the server side is used to compare the provided password with the hash inside the PostgreSQL DB. To bolster security, a set of specific measures are implemented. The system deliberately ensures that failed authentication responses do not disclose any information, thereby preventing enumeration attacks. Furthermore, the system effectively combats time-based attacks by ensuring that the authentication response consistently takes the same amount of time, regardless of whether the user's information is found in the database or not. Once the verification process is successfully completed, the server issues to the client a secure access token, which will be used for future requests. This access token is generated using Java's random UUID method. Session termination can be requested with the stop command, which will result in the removal of their access token. Additionally, a timeout feature compels users to log in again after a specified time period.
 
 #### Password Storage
 
