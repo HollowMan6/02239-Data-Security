@@ -10,15 +10,15 @@
 
 The following security goals must be ensured for a safe client/server application:
 
-- **Protection of User Credentials**: The attacker should be unable to discern user credentials from the communication channel. Also even if the database is compromised, the attacker should not gain access to plain-text user credentials. Finally, supposing a scenario where data leaks happen, brute force attacks should be made impractical to implement.
+- **Protection of User Credentials**:  User credentials must be kept secret. Also, supposing a scenario where data leaks happen, brute force attacks should be made impractical to implement on leaked data.
 
 - **Credential Hashing**: Users' passwords should be hashed and protected against brute force and rainbow table attacks. Also the hashes should not be made deterministic, in case multiple users use the same password to autenticate.
 
-- **Server Independence from Plaintext Passwords**: The server doesn't handle users' plaintext passwords. This precaution ensures security in scenarios where the server may be comprimised without client knowledge.
+- **Server Independence from Plaintext Passwords**: The server doesn't handle users' plain-text passwords. This precaution ensures security in scenarios where the server may be comprimised without client knowledge.
 
 - **Protection Against Data Leaks**: Data should be safely stored and inputs should be safely handled and sanitized to provide protection against data leaks, memory dumps or SQL injections.
 
-- **Secure Communication**: Enforce secure communication over the internet using TLS, which provides confidentiality and integrity guarantees. Server identity should always be verified before every interaction.
+- **Secure Communication**: Enforce security on the communication channels with TLS, providing confidentiality and integrity guarantees. Server identity should always be verified before every interaction.
 
 For our implementation, we decided to store user passwords in a DBMS. For password hashing, we employ the Bcrypt library and the PBKDF2 hashing algorithm, which provides better robustness and resistance to brute force or rainbow tables attacks. To thwart SQL injection attacks, our software utilizes the java.sql.PreparedStatement interface, and we use the mature open source PostgreSQL database. We assume the service is deployed using certificates and TLS to meet the last security requirement, while all the others are supported by our implementation.
 
@@ -122,22 +122,22 @@ This architecture comprises several key components:
 
 1. **dtu.compute.client.Client:** Simulates user behavior within the printing system. The client can execute all actions outlined in table above. Authentication is typically the initial step, while stopping the service is the final one.
 
-2. **dtu.compute.server.print:** Emulates services provided by a physical printer. Details are outlined in table above. To use the printer service, the user must be authenticated, and the printer service must be started.
+2. **dtu.compute.server.print:** Emulates services provided by a physical printer. Details are outlined in table above. The user will need to authenticate itself for using the printer before its started.
 
-3. **dtu.compute.server.Session:** Manages user sessions. During initial authentication, the client can specify a valid time parameter to determine the session's duration. Within this period, the client doesn't need to resend their username and password.
+3. **dtu.compute.server.Session:** Manages user sessions. The client specifies the time duration for the session initially and afterwards user's credentials (password and username) aren't requried to be sent again.
 
-4. **dtu.compute.util.DB:** Utilizes a database to store and manage user information. Considering concurrent access and manipulation scenarios, database systems typically offer satisfactory performance due to integrated isolation mechanisms. PostgreSQL is chosen as the specific database system due to its maturity, widespread use, and trustworthiness in handling storage needs without significant security concerns. Instead of setting up a local database, a cloud service provided by ElephantSQL is employed to allow for easy scalability with an increasing user base and to mitigate potential single point of failure issues associated with centralized database systems.
+4. **dtu.compute.util.DB:** For the purpose for storing user related information and managing it, we would need the use of a database. Futhermore, DBMS offer adequate performance because of isolation mechanisms for data when we consider data manipulation and concurrent access for users. PostgreSQL is chosen as the specific database system due to its maturity, widespread use, and trustworthiness in handling storage needs without significant security concerns. Instead of setting up a local database, a cloud service provided by ElephantSQL is employed to allow for easy scalability with an increasing user base and to mitigate potential single point of failure issues associated with centralized database systems.
 
-5. **dtu.compute.util.Crypto:** Responsible for authenticating clients. The implementation of this authentication mechanism is further detailed in section 3.2.
+5. **dtu.compute.util.Crypto:** Responsible for authenticating clients.
 
-8. **Log System:** Records user behavior for future examination. The Log4j2 library is used for logging, with logs organized by date and size (up to 100 KB).
+8. **Log System:** Records user behavior for future examination. These logs are arranged upon the size and date of the entered data with sizes upto 100KB and we use Log4j2 library for this purpose.
 
 #### Implementation of Authentication Mechanism
 
 The detailed implementation of the authentication mechanism is as follows:
 
 1. **Addition of Test Users:** 
- `addUser` method is used to insert the users to the database since we don't support it through any interactive way from the frontend. The test user password is retrieved from `Configuration.java` and hashed using the PBKDF2 algorithm with SHA512, and then additionally hased with a unique salt using the jBcrypt library insde `Crypto.java`. The hashed password, along with the username, is then saved to the database. The list of users to be added 
+ `addUser` method is used to insert the users to the database since we don't support it through any interactive way from the frontend. The test user password is retrieved from `Configuration.java` and hashed using the PBKDF2 algorithm with SHA512, and then additionally hased with a unique salt using the jBcrypt library insde `Crypto.java`. We will save the username and the hashed password inside our POSTGRE SQL database. The list of users to be added 
 
     ```java
     db.addUser(Configuration.testUsername, Crypto.salt(pwHash));
@@ -164,8 +164,7 @@ The detailed implementation of the authentication mechanism is as follows:
 ### Security Requirements
 #### Password Transport
 
-Password transport relies on the assumption that the communication between client and server is conducted over TLS. TLS offers numerous security benefits, including confidentiality, integrity, replay prevention, and server authentication. It encrypts all data transmitted between client and server, safeguarding information against attacks. TLS also employs HMAC for integrity checks, detecting any message tampering. Nonces are utilized to protect against replay attacks, and certificates enable the user to verify the server's identity. This ensures that all communication between our print server and the client is secure.
-Additionally, our application ensures that passwords are not transmitted in plain-text. The client hashes the password using PBKDF2, and transmits the hashed password securely to the server via TLS.
+Supposing the usage of TLS, many risks regarding channels security are already minimized. TLS 1.3 implements by default data encryption with HMAC, and server identity is verified against certificate signatures. This ensures that all communication between our printing server and the client is secure. Moreover, passwords are never sent in plain-text
 
 #### Password Verification
 
@@ -183,19 +182,19 @@ Moreover, we take the additional precaution of never transmitting passwords in p
 
 ### Logging
 
-To demonstrate that users are always authenticated before using a service, we log the user who requested the service and the method name. This logging occurs in the authenticate method after password and access token checks, ensuring that requests pass through authentication first.
+Logs are created for a particular service using the called method's specifications such as name and the end user who requested it. This ensures authentication of the end users for that particular service. The logging functionality happens after we check the access token of the user and its password (in case of initial authentication) inside `authenticate` method.
 
 Sample log output for invoking the print service:
 
 ```
-2023-10-26 17:13:10 INFO  testuser authenticates OK
-2023-10-26 17:13:10 INFO  testuser requesting: start
-2023-10-26 17:13:10 INFO  testuser requesting: print
-2023-10-26 17:13:10 INFO  printer1-test1.txt added to printing queue
+2023-10-26 17:13:10 INFO  testuser auth success.
+2023-10-26 17:13:10 INFO  testuser service req: start
+2023-10-26 17:13:10 INFO  testuser service req: print
+2023-10-26 17:13:10 INFO  printer1-test1.txt queued in print service.
 ```
 
 ## Conclusion
 <!-- > (max 1 page)
 > The conclusions should summarize the problems addressed in the report and clearly identify which of the requirements are satisfied and which are not (a summary of Section 4). The conclusions may also include a brief outline of future work. -->
 
-Our exploration centered on the specific challenges associated with password-based authentication in client/server systems, covering aspects like the secure storage, transmission, and validation of passwords. Building upon these considerations, we conducted assessments from various perspectives, confirming that both the printing service and the authentication mechanism function as intended. 
+Our exploration centered on the specific challenges associated with password-based authentication in client/server systems, covering aspects like the secure storage, transmission, and validation of passwords. Building upon these considerations, we conducted assesauth success.sments from various perspectives, confirming that both the printing service and the authentication mechanism function as intended. 

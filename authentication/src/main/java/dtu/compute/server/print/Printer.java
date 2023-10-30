@@ -22,7 +22,7 @@ public class Printer {
 
 	public void addFile(String filename) {
 		queue.add(filename);
-		logger.info(String.format("%s-%s added to printing queue", this.name, filename));
+		logger.info(String.format("%s-%s queued in print service.", this.name, filename));
 	}
 
 	public void listQueue() {

@@ -172,7 +172,7 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 			passwordHash = Configuration.randomHash;
 
 		if (!Crypto.compare(password, passwordHash)) {
-			logger.info(String.format("Authentication failed for %s", username));
+			logger.info(String.format("%s failed auth.", username));
 			return "";
 		}
 
@@ -181,7 +181,7 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		sessions.put(uuid, session);
 		sessionUsers.put(uuid, username);
 
-		logger.info(String.format("%s authenticates OK", username));
+		logger.info(String.format("%s auth success.", username));
 		return uuid;
 	}
 
@@ -194,7 +194,7 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 			sessionUsers.remove(access_token);
 			return false;
 		}
-		logger.info(String.format("%s requesting: %s", sessionUsers.get(access_token),
+		logger.info(String.format("%s service req: %s", sessionUsers.get(access_token),
 				serviceName));
 		return true;
 	}
