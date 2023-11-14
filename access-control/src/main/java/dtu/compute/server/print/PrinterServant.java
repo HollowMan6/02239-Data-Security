@@ -9,8 +9,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import dtu.compute.server.Session;
+import dtu.compute.server.ac.Model;
+import dtu.compute.server.ac.Role;
 import dtu.compute.util.Configuration;
-import dtu.compute.util.DB;
+import dtu.compute.util.db.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,11 +25,13 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 	private boolean started = false;
 	private final Map<String, Session> sessions;
 	private final Map<String, String> sessionUsers;
-	private final DB db;
+	private final User user;
+	private Model accessControlModel;
 
 	private final String UNAUTHENTICATED = "Please authenticate first";
 	private final String NOT_STARTED = "Printing service not started";
 	private final String NOT_FOUND = "Specified printer not found";
+	private final String NOT_ALLOWED = " not allowed to ";
 
 	public PrinterServant() throws RemoteException {
 		printers = new ArrayList<>();
@@ -36,7 +40,15 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		configs = new HashMap<>();
 		sessions = new HashMap<>();
 		sessionUsers = new HashMap<>();
-		db = new DB();
+		user = new User();
+
+		// Set Access Control Mechanism
+		if (Configuration.accessControlModel.equals("accessControlList"))
+			accessControlModel = new dtu.compute.server.ac.List();
+		else if (Configuration.accessControlModel.equals("roleBasedAccessControl"))
+			accessControlModel = new Role();
+		else
+			logger.error("Invalid Configuration");
 	}
 
 	public String print(String filename, String printer, String access_token) throws RemoteException {
@@ -44,6 +56,11 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 			return UNAUTHENTICATED;
 		if (!started)
 			return NOT_STARTED;
+
+		String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
+		String userName = sessionUsers.get(access_token);
+		if (!accessControlModel.isMethodGranted(userName, methodName))
+			return userName + NOT_ALLOWED + methodName;
 
 		for (var p : printers) {
 			if (p.getName().equals(printer)) {
@@ -60,6 +77,11 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		if (!started)
 			return NOT_STARTED;
 
+		String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
+		String userName = sessionUsers.get(access_token);
+		if (!accessControlModel.isMethodGranted(userName, methodName))
+			return userName + NOT_ALLOWED + methodName;
+
 		for (var p : printers) {
 			if (p.getName().equals(printer)) {
 				p.listQueue();
@@ -75,6 +97,11 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		if (!started)
 			return NOT_STARTED;
 
+		String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
+		String userName = sessionUsers.get(access_token);
+		if (!accessControlModel.isMethodGranted(userName, methodName))
+			return userName + NOT_ALLOWED + methodName;
+
 		for (var p : printers) {
 			if (p.getName().equals(printer)) {
 				p.topQueue(job);
@@ -87,6 +114,12 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 	public String start(String access_token) throws RemoteException {
 		if (!isAuthenticated(access_token, "start"))
 			return UNAUTHENTICATED;
+
+		String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
+		String userName = sessionUsers.get(access_token);
+		if (!accessControlModel.isMethodGranted(userName, methodName))
+			return userName + NOT_ALLOWED + methodName;
+
 		if (started) {
 			return "Printing service already started";
 		}
@@ -100,6 +133,12 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		if (!started) {
 			return NOT_STARTED;
 		}
+
+		String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
+		String userName = sessionUsers.get(access_token);
+		if (!accessControlModel.isMethodGranted(userName, methodName))
+			return userName + NOT_ALLOWED + methodName;
+
 		started = false;
 		sessions.remove(access_token);
 		sessionUsers.remove(access_token);
@@ -112,6 +151,11 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		if (!started) {
 			return NOT_STARTED;
 		}
+
+		String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
+		String userName = sessionUsers.get(access_token);
+		if (!accessControlModel.isMethodGranted(userName, methodName))
+			return userName + NOT_ALLOWED + methodName;
 
 		for (var p : printers) {
 			p.clearQueue();
@@ -127,6 +171,12 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		if (!started) {
 			return NOT_STARTED;
 		}
+
+		String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
+		String userName = sessionUsers.get(access_token);
+		if (!accessControlModel.isMethodGranted(userName, methodName))
+			return userName + NOT_ALLOWED + methodName;
+
 		for (var p : printers) {
 			if (p.getName().equals(printer)) {
 				int status = p.getStatus();
@@ -142,9 +192,16 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		if (!started) {
 			return NOT_STARTED;
 		}
+
+		String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
+		String userName = sessionUsers.get(access_token);
+		if (!accessControlModel.isMethodGranted(userName, methodName))
+			return userName + NOT_ALLOWED + methodName;
+
 		if (configs.containsKey(parameter)) {
-			logger.info(String.format("%s: %s.", parameter, configs.get(parameter)));
-			return "";
+			String info = String.format("%s: %s", parameter, configs.get(parameter));
+			logger.info(info);
+			return info;
 		}
 
 		String error = String.format("No '%s' on server", parameter);
@@ -158,6 +215,12 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 		if (!started) {
 			return NOT_STARTED;
 		}
+
+		String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
+		String userName = sessionUsers.get(access_token);
+		if (!accessControlModel.isMethodGranted(userName, methodName))
+			return userName + NOT_ALLOWED + methodName;
+
 		configs.put(parameter, value);
 
 		String success = String.format("%s: %s", parameter, value);
@@ -166,7 +229,7 @@ public class PrinterServant extends UnicastRemoteObject implements PrinterServic
 	}
 
 	public String authenticate(String username, String password, int validSessionTime) throws RemoteException {
-		String passwordHash = db.getUserPasswordHashByName(username);
+		String passwordHash = user.getUserPasswordHashByName(username);
 
 		if (passwordHash == null) // For time constant
 			passwordHash = Configuration.randomHash;

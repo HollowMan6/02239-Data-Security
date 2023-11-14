@@ -9,6 +9,18 @@ repositories {
     mavenCentral()
 }
 
+task client(type: JavaExec) {
+    main = 'dtu.compute.client.Client'
+    classpath = sourceSets.main.runtimeClasspath
+
+    jvmArgs = ['-ea']
+}
+
+task server(type: JavaExec) {
+    main = 'dtu.compute.server.Server'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 dependencies {
     implementation 'org.mindrot:jbcrypt:0.4'
     implementation 'org.postgresql:postgresql:42.6.0'
