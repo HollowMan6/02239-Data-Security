@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'dtu.compute'
+version '0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.mindrot:jbcrypt:0.4'
+    implementation 'org.postgresql:postgresql:42.6.0'
+    implementation 'commons-codec:commons-codec:1.16.0'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.21.0'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.21.0'
+}
