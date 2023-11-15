@@ -36,15 +36,16 @@ This segment offers a concise glimpse into the execution of the access control l
 • The other dimension catalogs the objects available for access.
 Each matrix entry delineates the access rights of a specific subject to a particular object. Recognizing the typically sparse nature of the access matrix, it can be broken down by columns, resulting in access control lists (ACLs). These ACLs enumerate users and their sanctioned access privileges. Drawing inspiration from the ACL concept, we have delineated the access control list employed for the printing service, presented in table below.
 
-| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| -------- | ----- | ----- | -------- | ----- | ---- | ------- | ------ | ---------- | --------- |
-| Alice    | 1     | 1     | 1        | 1     | 1    | 1       | 1      | 1          | 1         |
-| Cecilia  | 1     | 1     | 1        | 1     | 1    | 1       | 1      | 0          | 0         |
-| Bob      | 0     | 0     | 0        | 1     | 1    | 1       | 1      | 1          | 1         |
-| David    | 1     | 1     | 1        | 1     | 1    | 1       | 0      | 0          | 0         |
-| Erica    | 1     | 1     | 1        | 0     | 0    | 0       | 0      | 0          | 0         |
-| Fred     | 1     | 1     | 1        | 0     | 0    | 0       | 0      | 0          | 0         |
-| George   | 1     | 1     | 1        | 0     | 0    | 0       | 0      | 0          | 0         |
+| username | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
+| -------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
+| Alice    | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
+| Cecilia  | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 0          | 0         |
+| Bob      | 0     | 0     | 0        | 1           | 1    | 1       | 1      | 1          | 1         |
+| David    | 1     | 1     | 1        | 1           | 1    | 1       | 0      | 0          | 0         |
+| Erica    | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
+| Fred     | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
+| George   | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
+|          |       |       |          | **Table-1** |      |         |        |            |           |
 
 Within the table, the first column displays the identities of the seven users/entities authorized to access the system. Columns 2 to 10 outline various operations applicable to the printing system. Due to distinct user permissions, the specific entitlement is represented by binary integers (0 & 1). A value of 0 signifies false, indicating the user lacks authorization for that operation, while a value of 1 denotes true, granting the user permission. This table is logged into a database table and stored alongside the user table. Notably, there are no provided APIs for adding user information to the access control list table and user table. Any relevant data inclusion must occur through database manipulation or the utilization of JDBC APIs within the system beforehand.
 
@@ -106,24 +107,22 @@ To assess the functionality of the access control list mechanism, we introduced 
 
 For the subsequent assignment, our objective involves recognizing the roles, outlining a hierarchical structure for these roles, and specifying permissions for each role in order to enact the prescribed access control strategy. The roles and their hierarchical arrangement are presented in Table 2, as well as depicted in Figure 1 and Figure 2.
 
-Table 2:
-| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| ------------- | ----- | ----- | -------- | ----- | ---- | ------- | ------ | ---------- | --------- |
-| manager | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
-| ordinary_user | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| janitor | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 0 |
-| power_user | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
-| service_tech | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 |
+| username      | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
+| ------------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
+| manager       | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
+| ordinary_user | 1     | 1     | 0        | 0           | 0    | 0       | 0      | 0          | 0         |
+| janitor       | 0     | 0     | 0        | 1           | 1    | 0       | 0      | 0          | 0         |
+| power_user    | 1     | 1     | 1        | 0           | 0    | 1       | 0      | 0          | 0         |
+| service_tech  | 0     | 0     | 0        | 0           | 0    | 0       | 1      | 1          | 1         |
+|               |       |       |          | **Table-2** |      |         |        |            |           |
 
-<figure align="center" >
-  <img src="./role-heirarchy.png" caption="" alt="Sublime's custom image"/>
-  <figcaption>Figure: 1 Role Heirarchy</figcaption>
-</figure>
+| ![role-heirarchy.png](role-heirarchy.png) |
+| :---------------------------------------: |
+|       **Figure: 1 Role Heirarchy**        |
 
-<figure align="center" >
-  <img src="./role-heirarchy-venn-diagram.png" caption="" alt="Sublime's custom image"/>
-  <figcaption>Figure: 2 Role Heirarchy Venn Diagram</figcaption>
-</figure>
+| ![role-heirarchy-venn-diagram.png](role-heirarchy-venn-diagram.png) |
+| :-----------------------------------------------------------------: |
+|              **Figure: 2 Role Heirarchy Venn Diagram**              |
 
 The presence of five distinct roles is evident, with the table illustrating the permissions associated with each operation for every role. Similar to Table 1, the representation involves assigning 1 for true and 0 for false.
 
@@ -131,17 +130,16 @@ To articulate the role-based access control (RBAC) policy, an additional column 
 
 The application of the specified role table for RBAC mechanism implementation begins with the creation of a new subclass termed RoleBasedControl, which implements the AccessControlModel interface, as outlined below:
 
-Table 3: User Table with Roles:
-
-| **username** | **role**        | **password_hash** |
-| ------------ | --------------- | ----------------- |
-| Alice        | manager         | xxx               |
-| Cecilia      | power_user      | xxx               |
-| David        | ordinary_user   | xxx               |
-| Bob          | janitor/service | xxx               |
-| Fred         | ordinary_user   | xxx               |
-| George       | ordinary_user   | xxx               |
-| Erica        | ordinary_user   | xxx               |
+| **username** | **role**                        | **password_hash** |
+| ------------ | ------------------------------- | ----------------- |
+| Alice        | manager                         | xxx               |
+| Cecilia      | power_user                      | xxx               |
+| David        | ordinary_user                   | xxx               |
+| Bob          | janitor/service                 | xxx               |
+| Fred         | ordinary_user                   | xxx               |
+| George       | ordinary_user                   | xxx               |
+| Erica        | ordinary_user                   | xxx               |
+|              | Table 3: User Table with Roles: |                   |
 
 ```
 public class RoleBasedControl implements AccessControlModel{
@@ -190,63 +188,62 @@ The evaluation should provide a simple summary of which of the requirements are 
 
 Within this segment, we provide an account of the prototype that enforces the access control policies outlined in this task. Commencing with the discussion on access control list (ACL), two tables are pertinent to ACL, specifically the user table and the access control list table. The existing contents of these tables before any modifications are presented below:
 
-Table 4: User Table
-
-| **username** | **role** | **password_hash** |
-| ------------ | -------- | ----------------- |
-| Alice        | none     | xxx               |
-| Cecilia      | none     | xxx               |
-| David        | none     | xxx               |
-| Bob          | none     | xxx               |
-| Fred         | none     | xxx               |
-| George       | none     | xxx               |
-| Erica        | none     | xxx               |
+| **username** | **role**                | **password_hash** |
+| ------------ | ----------------------- | ----------------- |
+| Alice        | none                    | xxx               |
+| Cecilia      | none                    | xxx               |
+| David        | none                    | xxx               |
+| Bob          | none                    | xxx               |
+| Fred         | none                    | xxx               |
+| George       | none                    | xxx               |
+| Erica        | none                    | xxx               |
+|              | **Table 4: User Table** |                   |
 
 In this context, the role attribute for all users is configured as "none" since we are presently utilizing the access control list mechanism. The role attribute is irrelevant to our current scenario, and its assignment to "none" signifies that this attribute is not active. Additionally, the password hashes are excluded in this presentation.
 
 The user table, in this instance, solely handles user authentication. Detailed access control policies are stored in the access control list table, as illustrated in Table 5.
 
-Table 5: Access Control List
-
-| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| -------- | ----- | ----- | -------- | ----- | ---- | ------- | ------ | ---------- | --------- |
-| Alice    | 1     | 1     | 1        | 1     | 1    | 1       | 1      | 1          | 1         |
-| Cecilia  | 1     | 1     | 1        | 0     | 0    | 1       | 0      | 0          | 0         |
-| Bob      | 0     | 0     | 0        | 1     | 1    | 1       | 1      | 1          | 1         |
-| David    | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
-| Erica    | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
-| Fred     | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
-| George   | 1     | 1     | 1        | 0     | 0    | 0       | 0      | 0          | 0         |
+| username | print | queue | topQueue | start | stop                             | restart | status | readConfig | setConfig |
+| -------- | ----- | ----- | -------- | ----- | -------------------------------- | ------- | ------ | ---------- | --------- |
+| Alice    | 1     | 1     | 1        | 1     | 1                                | 1       | 1      | 1          | 1         |
+| Cecilia  | 1     | 1     | 1        | 0     | 0                                | 1       | 0      | 0          | 0         |
+| Bob      | 0     | 0     | 0        | 1     | 1                                | 1       | 1      | 1          | 1         |
+| David    | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
+| Erica    | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
+| Fred     | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
+| George   | 1     | 1     | 1        | 0     | 0                                | 0       | 0      | 0          | 0         |
+|          |       |       |          |       | **Table 5: Access Control List** |
+|          |       |       |          |
 
 Following this, alterations are made to the content of the two tables to align with modifications in the company's personnel. Initially, Bob's details are removed from both the user table and access control list table. Subsequently, as George assumes some of Bob's responsibilities and takes on the role of a service technician, corresponding permissions are assigned to George in the access control list. New employees can be effortlessly incorporated into both the user table and access control list table, accompanied by relevant permission details. Post the organizational changes, the revised content of the two tables is illustrated in Table 6 and Table 7.
 
 For specific testing purposes, two integration tests have been defined. The first, mentioned in section 2, is termed `AccessControlListTest`, examining the functionality of the access control list prototype. The second test, named `StaffChangeOnAccessControlListTest`, involves adding all initial employees to the database and subsequently modifying the database content to simulate shifts in company staff. This test evaluates whether the ACL mechanism effectively adheres to the revised policies.
 
-Table 6: User Table Updated
+| **username** | **role**                        | **password_hash** |
+| ------------ | ------------------------------- | ----------------- |
+| Alice        | none                            | xxx               |
+| Cecilia      | none                            | xxx               |
+| David        | none                            | xxx               |
+| Ida          | none                            | xxx               |
+| Fred         | none                            | xxx               |
+| George       | none                            | xxx               |
+| Erica        | none                            | xxx               |
+| Henry        | none                            | xxx               |
+|              | **Table 6: User Table Updated** |
+|              |
 
-| **username** | **role** | **password_hash** |
-| ------------ | -------- | ----------------- |
-| Alice        | none     | xxx               |
-| Cecilia      | none     | xxx               |
-| David        | none     | xxx               |
-| Ida          | none     | xxx               |
-| Fred         | none     | xxx               |
-| George       | none     | xxx               |
-| Erica        | none     | xxx               |
-| Henry        | none     | xxx               |
-
-Table 7: Access Control List Updated
-
-| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| -------- | ----- | ----- | -------- | ----- | ---- | ------- | ------ | ---------- | --------- |
-| Alice    | 1     | 1     | 1        | 1     | 1    | 1       | 1      | 1          | 1         |
-| Cecilia  | 1     | 1     | 1        | 0     | 0    | 1       | 0      | 0          | 0         |
-| David    | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
-| Erica    | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
-| Fred     | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
-| George   | 1     | 1     | 0        | 0     | 0    | 0       | 1      | 1          | 1         |
-| Ida      | 1     | 1     | 1        | 0     | 0    | 1       | 0      | 0          | 0         |
-| Henry    | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
+| username | print | queue | topQueue | start | stop                                     | restart | status | readConfig | setConfig |
+| -------- | ----- | ----- | -------- | ----- | ---------------------------------------- | ------- | ------ | ---------- | --------- |
+| Alice    | 1     | 1     | 1        | 1     | 1                                        | 1       | 1      | 1          | 1         |
+| Cecilia  | 1     | 1     | 1        | 0     | 0                                        | 1       | 0      | 0          | 0         |
+| David    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
+| Erica    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
+| Fred     | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
+| George   | 1     | 1     | 0        | 0     | 0                                        | 0       | 1      | 1          | 1         |
+| Ida      | 1     | 1     | 1        | 0     | 0                                        | 1       | 0      | 0          | 0         |
+| Henry    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
+|          |       |       |          |       | **Table 7: Access Control List Updated** |
+|          |       |       |          |
 
 The implementation of the access control list mechanism has successfully met the following requirements:
 
@@ -258,42 +255,42 @@ The implementation of the access control list mechanism has successfully met the
 
 Subsequently, we transition to role-based access control (RBAC). Two pertinent tables associated with RBAC include the user table and the roles table, presented in Table 8 and Table 9.
 
-Table 8: User Table with roles
+| **username** | **role**                           | **password_hash** |
+| ------------ | ---------------------------------- | ----------------- |
+| Alice        | manager                            | xxx               |
+| Cecilia      | power_user                         | xxx               |
+| Bob          | janitor&service_tech               | xxx               |
+| David        | ordinary_user                      | xxx               |
+| Erica        | ordinary_user                      | xxx               |
+| Fred         | ordinary_user                      | xxx               |
+| George       | ordinary_user                      | xxx               |
+|              | **Table 8: User Table with roles** |
+|              |
 
-| **username** | **role**             | **password_hash** |
-| ------------ | -------------------- | ----------------- |
-| Alice        | manager              | xxx               |
-| Cecilia      | power_user           | xxx               |
-| Bob          | janitor&service_tech | xxx               |
-| David        | ordinary_user        | xxx               |
-| Erica        | ordinary_user        | xxx               |
-| Fred         | ordinary_user        | xxx               |
-| George       | ordinary_user        | xxx               |
-
-Table 9: The role table
-
-| username      | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| ------------- | ----- | ----- | -------- | ----- | ---- | ------- | ------ | ---------- | --------- |
-| manager       | 1     | 1     | 1        | 1     | 1    | 1       | 1      | 1          | 1         |
-| janitor       | 1     | 1     | 1        | 0     | 0    | 1       | 0      | 0          | 0         |
-| power_user    | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
-| service_tech  | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
-| ordinary_user | 1     | 1     | 0        | 0     | 0    | 0       | 0      | 0          | 0         |
+| username      | print | queue | topQueue | start | stop                        | restart | status | readConfig | setConfig |
+| ------------- | ----- | ----- | -------- | ----- | --------------------------- | ------- | ------ | ---------- | --------- |
+| manager       | 1     | 1     | 1        | 1     | 1                           | 1       | 1      | 1          | 1         |
+| janitor       | 1     | 1     | 1        | 0     | 0                           | 1       | 0      | 0          | 0         |
+| power_user    | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
+| service_tech  | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
+| ordinary_user | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
+|               |       |       |          |       | **Table 9: The role table** |
+|               |       |       |          |
 
 In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still excluded. To accommodate changes in the company's organizational structure, the initial step involves removing Bob from the user table. Subsequently, the role of George is adjusted from "ordinary_user" to "ordinary_user&service_tech," with different roles connected using "&."For the two recently included employees, Ida is assigned the role of power_user, while Henry is designated as an ordinary_user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
 
-Table 10: User Table updated
-
-| **username** | **role**                   | **password_hash** |
-| ------------ | -------------------------- | ----------------- |
-| Alice        | manager                    | xxx               |
-| Cecilia      | power_user                 | xxx               |
-| David        | ordinary_user              | xxx               |
-| Fred         | ordinary_user              | xxx               |
-| Erica        | ordinary_user              | xxx               |
-| George       | ordinary_user&service_tech | xxx               |
-| Henry        | ordinary_user              | xxx               |
-| Ida          | power_user                 | xxx               |
+| **username** | **role**                         | **password_hash** |
+| ------------ | -------------------------------- | ----------------- |
+| Alice        | manager                          | xxx               |
+| Cecilia      | power_user                       | xxx               |
+| David        | ordinary_user                    | xxx               |
+| Fred         | ordinary_user                    | xxx               |
+| Erica        | ordinary_user                    | xxx               |
+| George       | ordinary_user&service_tech       | xxx               |
+| Henry        | ordinary_user                    | xxx               |
+| Ida          | power_user                       | xxx               |
+|              | **Table 10: User Table updated** |
+|              |
 
 The implementation of the role-based access control mechanism has successfully met the following requirements:
 
