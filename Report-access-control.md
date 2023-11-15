@@ -48,7 +48,7 @@ Each matrix entry delineates the access rights of a specific subject to a partic
 
 Within the table, the first column displays the identities of the seven users/entities authorized to access the system. Columns 2 to 10 outline various operations applicable to the printing system. Due to distinct user permissions, the specific entitlement is represented by binary integers (0 & 1). A value of 0 signifies false, indicating the user lacks authorization for that operation, while a value of 1 denotes true, granting the user permission. This table is logged into a database table and stored alongside the user table. Notably, there are no provided APIs for adding user information to the access control list table and user table. Any relevant data inclusion must occur through database manipulation or the utilization of JDBC APIs within the system beforehand.
 
-To seamlessly integrate the access control mechanism into the application, our initial step involves defining a Java interface named AccessControlModel, as illustrated below:
+To seamlessly integrate the access control mechanism into the application, our initial step involves defining a Java interface named `AccessControlModel`, as illustrated below:
 
 ```
 public interface AccessControlModel {
@@ -58,20 +58,20 @@ public interface AccessControlModel {
 
 Contained within the interface is solely a single method titled isMethodGranted. This method accepts the user name and method name as parameters, undertaking the verification of user authorization for method usage. The determination is contingent upon the specific implementation within the class. Each concrete implementation class delineates the protocol for evaluating user permissions, with variability based on distinct access control mechanisms.
 
-Facilitating the transition between these mechanisms necessitates the introduction of a novel entry in the service.properties file, denoted as accessControlModel. The alteration of the key's value to accessControlList is imperative for the utilization of the access control list mechanism, as demonstrated below:
+Facilitating the transition between these mechanisms necessitates the introduction of a novel entry in the service.properties file, denoted as `accessControlModel`. The alteration of the key's value to accessControlList is imperative for the utilization of the access control list mechanism, as demonstrated below:
 
 ```
 accessControlModel = accessControlList
 ```
 
-Upon initialization, the program will interpret this configuration and opt for an appropriate sub-class to function as the AccessControlModel entity. As illustrated here:
+Upon initialization, the program will interpret this configuration and opt for an appropriate sub-class to function as the `AccessControlModel` entity. As illustrated here:
 
 ```
 if (definedAccessControlModel.equals("accessControlList"))
  accessControlModel = new AccessControlList();
 ```
 
-The AccessControlList class serves as a derivative [TODO: is this the designated term for class implementation] implementing the AccessControlModel interface through the utilization of the access control list mechanism. It customizes the isMethodGranted method in the subsequent manner.
+The `AccessControlList` class serves as a derivative [TODO: is this the designated term for class implementation] implementing the AccessControlModel interface through the utilization of the access control list mechanism. It customizes the isMethodGranted method in the subsequent manner.
 
 ```
 @Override
@@ -300,8 +300,8 @@ The implementation of the role-based access control mechanism has successfully m
 • Development of the role-based access control mechanism prototype.
 • Specification of the role hierarchy in an external file.
 • Incorporation of modifications to the role-based access control prototypes to reflect changes in company personnel.
-• Introduction of an integration test named RoleBasedControlTest to assess the functionality of the role-based access control mechanism, ensuring effective user access control.
-• Implementation of an integration test named StaffChangedOnRoleBasedControlTest to simulate shifts in company staff and validate the adaptive nature of the role-based access control mechanism.
+• Introduction of an integration test named `RoleBasedControlTest` to assess the functionality of the role-based access control mechanism, ensuring effective user access control.
+• Implementation of an integration test named `StaffChangedOnRoleBasedControlTest` to simulate shifts in company staff and validate the adaptive nature of the role-based access control mechanism.
 
 However, both access control systems fall short in addressing two major requirements. Firstly, the absence of a registration API necessitates manual insertion of all users into the database. For testing purposes, users are initially inserted through the database API, after which the access control mechanism is tested on them. Secondly, there is a lack of APIs to facilitate changes in user permissions, which can only be achieved through direct manipulation of the database. These limitations contribute to the application's complexity in user management. Additionally, the absence of a proper UI must be acknowledged as a drawback, as it is crucial for the practical usability of the application.
 
