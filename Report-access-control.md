@@ -11,30 +11,25 @@
 <!-- > (max 1 page)
 > The introduction should provide a general introduction to the problem of access control in client/server applications. It should define the scope of the answer, i.e. explicitly state what problems are considered, and outline the proposed solution. Finally, it should clearly state which of the identified goals are met by the developed software. -->
 
-In applications employing a client/server model, diverse users typically interact with the system in distinct manners, based on their distinct permissions and roles they possess. Consider a teaching management system, where only teachers have the authority to create courses, and students are confined to taking exams. Consequently, a pivotal consideration for our printing system revolves around devising an effective access control mechanism to ensure each user operates within their designated realm of permissions. This report delves into two such mechanisms: access control lists (ACL) and role-based access control (RBAC).
 
-Access control lists involve associating each user with a specific list detailing permitted operations. When a user attempts a specific operation, the application scrutinizes their permissions in the access control list, determining whether to authorize or deny the action.
+Access control is a critical component in managing information security within any client/server system. It ensures that only authorized users can access specific resources, maintaining the integrity and confidentiality of sensitive data. Effective access control is pivotal in environments where information security is paramount.
 
-On the other hand, the role-based access control model connects roles with concrete permission lists rather than individual users. To regulate users, the system assigns roles, utilizing these roles to govern user permissions.
+The two primary access control models are Access Control Lists (ACL) and Role-Based Access Control (RBAC). ACLs are focused on individual users, granting specific permissions to each user for various operations. In contrast, RBAC assigns permissions based on user roles within the organization, streamlining the management of user privileges based on their job functions or responsibilities.
 
-For our devised solution, we've outlined the following objectives:
+For the purpose of this AC lab, the goal is to achieve the following properties:
 
-1. Integration of both access control list and role-based access control mechanisms.
-2. The ability to interchange between these mechanisms via a configuration file.
-3. Specification of the access control list in an external policy file or database loaded during printer server startup, steering clear of hardcoded elements in the program.
-   Definition of the role hierarchy in an external policy file or database loaded during printer server startup.
-4. Adaptability of both mechanisms to accommodate shifts in company employee roles.
-5. Implementation of pertinent integration testing to evaluate the functionality of both access control list and role-based access control mechanisms. Further details can be found in the ensuing sections.
+- Integrate both ACL and RBAC methodologies, making it possible to switch between the two.
+- External management of ACL parameters.
+- Apply changes in organizational roles and responsibilities, ensuring ongoing relevance and effectiveness.
+- Use test cases to validate software functionalities and correctness.
 
 ## Access Control Lists
 
 <!-- > (max 2 pages)
 > This section should provide a short overview of the implementation of the access control lists and the motivation behind all non-trivial design choices. -->
 
-This segment offers a concise glimpse into the execution of the access control lists mechanism. Notably, the access control list mechanism is a component of the discretionary access control framework (DAC). Employing DAC involves a general strategy utilizing the access matrix.
-• The matrix's one dimension encompasses identified subjects authorized to attempt resource access.
-• The other dimension catalogs the objects available for access.
-Each matrix entry delineates the access rights of a specific subject to a particular object. Recognizing the typically sparse nature of the access matrix, it can be broken down by columns, resulting in access control lists (ACLs). These ACLs enumerate users and their sanctioned access privileges. Drawing inspiration from the ACL concept, we have delineated the access control list employed for the printing service, presented in table below.
+This paragraph offers a concise of the project solution using ACL mechanism. More precisely, by using the discretionary access control framework (DAC), an access control matrix summarises each user's permissions on each operation on the printing server. Moreover,
+the implementation uses an SQL table with primary key _username_ to reference all service users, and permissions to each resource are encoded with binary values (1=True or 0=False). Hereby the matrix overview:
 
 | username | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
@@ -47,56 +42,76 @@ Each matrix entry delineates the access rights of a specific subject to a partic
 | George   | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
 |          |       |       |          | **Table-1** |      |         |        |            |           |
 
-Within the table, the first column displays the identities of the seven users/entities authorized to access the system. Columns 2 to 10 outline various operations applicable to the printing system. Due to distinct user permissions, the specific entitlement is represented by binary integers (0 & 1). A value of 0 signifies false, indicating the user lacks authorization for that operation, while a value of 1 denotes true, granting the user permission. This table is logged into a database table and stored alongside the user table. Notably, there are no provided APIs for adding user information to the access control list table and user table. Any relevant data inclusion must occur through database manipulation or the utilization of JDBC APIs within the system beforehand.
+This table is recorded in a database table and is stored together with the user table. It's important to note that there are no available APIs for adding user information to both the access control list table and the user table. To include any pertinent data, one must directly manipulate the database or use JDBC APIs that are already integrated within the system.
 
-To seamlessly integrate the access control mechanism into the application, our initial step involves defining a Java interface named `AccessControlModel`, as illustrated below:
+To implement the access control mechanism in our application, we start by creating a Java interface in _dtu.compute.server.ac_ named  `Model`, which includes the following code:
 
 ```
-public interface AccessControlModel {
+public interface Model {
   boolean isMethodGranted(String username, String method);
 }
 ```
 
-Contained within the interface is solely a single method titled isMethodGranted. This method accepts the user name and method name as parameters, undertaking the verification of user authorization for method usage. The determination is contingent upon the specific implementation within the class. Each concrete implementation class delineates the protocol for evaluating user permissions, with variability based on distinct access control mechanisms.
+This interface contains a single method, `isMethodGranted`, which takes the username and method name as arguments to check if the user is authorized to use the method. The specifics of this verification depend on the class's implementation. Each class that implements this interface will define its own way of checking user permissions, varying according to the access control mechanism used. The two implementations are defined in _dtu.compute.server.ac_ as follows: _List.java_ for ACL and _Role.java_ for Role-Based:
 
-Facilitating the transition between these mechanisms necessitates the introduction of a novel entry in the service.properties file, denoted as `accessControlModel`. The alteration of the key's value to accessControlList is imperative for the utilization of the access control list mechanism, as demonstrated below:
-
-```
-accessControlModel = accessControlList
-```
-
-Upon initialization, the program will interpret this configuration and opt for an appropriate sub-class to function as the `AccessControlModel` entity. As illustrated here:
-
-```
-if (definedAccessControlModel.equals("accessControlList"))
- accessControlModel = new AccessControlList();
-```
-
-The `AccessControlList` class serves as a derivative [TODO: is this the designated term for class implementation] implementing the AccessControlModel interface through the utilization of the access control list mechanism. It customizes the isMethodGranted method in the subsequent manner.
-
+- List.java
 ```
 @Override
 public boolean isMethodGranted(String username, String method) {
-    Map<String, Boolean> accessControlListByName = accessControlRepository.
-    getAccessControlListByName(username);
-    return accessControlListByName.get(method);
+    Map<String, Boolean> accessControlListByName = accessControl.getAccessControlListByName(username);
+    boolean result = accessControlListByName.get(method);
+    if (result) logger.info(String.format("%s is allowed to %s", username, method));
+    else logger.info(String.format("%s is not allowed to %s", username, method));
+    return result;
 }
 ```
 
-The accessControlRepository object is employed to interact with the database, retrieving authorization details based on the username. It retrieves user permission details from the access control list table, organizing them into a map. The conversion involves treating 0 as false and 1 as true. Subsequently, the method cross-references the map with the method name, providing a boolean value indicating whether the user is permitted to employ this method.
+- Role.java
+```
+@Override
+public boolean isMethodGranted(String username, String method) {
+    Set<String> roleSet = new HashSet<>();
+    String userRoleByName = user.getUserRoleByName(username);
+    if (!userRoleByName.contains("&")) roleSet.add(userRoleByName);
+    else roleSet.addAll(Arrays.stream(userRoleByName.split("&")).collect(Collectors.toList()));
+    boolean result = isMethodGrantedForRole(method, roleSet);
+    if (result) logger.info(String.format("%s with role %s is allowed to %s", username, userRoleByName, method));
+    else logger.info(String.format("%s with role %s is not allowed to %s", username, userRoleByName, method));
+    return result;
+}
+```
 
-For every method within the printing system, the access control mechanism is applied by verifying user permissions through the specific instance of the AccessControlModel interface. The specifics are outlined as follows:
+To switch between ACL and Role-Based control mechanisms, the software uses the configuration file _util.Configuration.java_ which contains a property named `accessControlModel`. This property can have two different values, namely:
+- accessControlList
+- roleBasedAccessControl
+
+This property is used by _dtu.compute.server.print.Printer.java_ to check which type of AC to use during initialization:
+
+```
+if (Configuration.accessControlModel.equals("accessControlList"))
+    accessControlModel = new dtu.compute.server.ac.List();
+else if (Configuration.accessControlModel.equals("roleBasedAccessControl"))
+    accessControlModel = new Role();
+else
+    logger.error("Invalid Configuration");
+```
+
+
+For every method within the printing system, the AC verification is implemented after checking user authentication. Permissions are checked through the specific implementation of  `isMethodGranted`, and after retreiving methodName and userName, if the permission is not granted, the client will display the NOT_ALLOWED error message:
 
 ```
 String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
-String userName = sessionUsernames.get(cookie);
+String userName = sessionUsers.get(access_token);
 if (!accessControlModel.isMethodGranted(userName, methodName))
-return "You are not allowed to perform this operation";
+	return userName + NOT_ALLOWED + methodName;
 ```
 
-The initial line of code retrieves the name of the presently invoked method, while the subsequent line fetches the username from the `sessionUsernames` object. Subsequently, the acquired username and method name are supplied to the `isMethodGranted` function of the `accessControlModel` object to scrutinize permissions. Any lack of authorization prompts the notification of the user.
+In terms of our design choices, we chose to keep the access control list in the database because it is well-suited for scenarios involving simultaneous access. Since we already decided to store user data in the database, it made sense to centralize all critical information in a single location instead of spreading it out. Furthermore, we favored using Java interfaces to achieve a level of abstraction and encapsulation. This approach offers the flexibility to adapt to future modifications in access control methods, like incorporating role-based access control.
 
-Regarding our design decisions, we opted to store the access control list in the database due to its suitability for concurrent access scenarios. Given our previous decision to store user information in the database, consolidating all sensitive information in one place seemed more appropriate than dispersing it across different locations. Additionally, the use of Java interfaces was preferred for a degree of abstraction and encapsulation, providing flexibility for potential future changes in the access control mechanisms, such as the integration of role-based access control.
+In order to check for correct behaviour and implementation, the Client in _dtu.compute.client_ asserts the different (???)
+
+___________________________________________________________^^^ DONE SO FAR ^^^^__________________________________________
+
 
 To assess the functionality of the access control list mechanism, we introduced a corresponding integration test named `AccessControlListTest`. Notably, the database tables are devoid of information at program startup. During test execution, user information and associated permissions are inserted, and subsequently, these entries are cleared upon test completion. In a practical implementation, user credentials and the access control list ought to be contained in the database.
 
