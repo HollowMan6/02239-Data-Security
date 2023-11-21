@@ -113,7 +113,7 @@ In terms of our design choices, we chose to keep the access control list in the 
 <!-- > (max 3 pages including diagrams)
 > This section should document the results of the role mining process performed in in Task 2 and provide a short overview of the implementation of the role based access control mechanism implemented in Task 3 along with the motivation behind all non-trivial design choices. In particular, it must describe the syntax used to specify the RBAC policy. -->
 
-The Role-Based implementation of the access control mechanism is defined in the following table: each role type has different permissions on the service types provided by the printer and they are organized in the hierarchical structure shown in Figure 1.
+The Role-Based implementation of the access control mechanism is defined in the following Table-2: each role type has different permissions on the service types provided by the printer and they are organized in the hierarchical structure shown in Figure 1.
 
 | Role      | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
 | ------------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
@@ -160,7 +160,7 @@ public class Role implements Model {
 }
 ```
 
-With this implementation, the user's SQL database will no longer contain have the following structure:
+Finally,  the user's SQL database will no longer contain ACL permissions, rather the username, role and password hashes as shown in the following structure:
 
 | **username** | **role**                        | **password_hash** |
 | ------------ | ------------------------------- | ----------------- |
@@ -242,15 +242,13 @@ For testing, two specific clients have been designed. The client for the ACL cas
 
 The implementation of the access control list mechanism has successfully met the following requirements:
 
-• Development of the access control list mechanism prototype.
+• Development of the access control list mechanism prototype that simulates the running of ACL requirements in the given specifications for our set of users.
 
-• Specification of the access control list in an external file.
+• Specification of the access control list in a MySQL database.
 
-• Incorporation of modifications to the access control list prototype to reflect changes in company personnel.
+• Incorporation of modifications to the access control method prototypes to reflect changes in company personnel.
 
-• Introduction of a unit test named `AccessControlListTest` to assess the functionality of the access control list mechanism, ensuring effective user access control.
-
-• Integration of a unit test named `StaffChangeOnAccessControlListTest` to simulate shifts in company staff and validate the adaptive nature of the access control list mechanism.
+• Addition of `ClientACL.java` to simulate and validate the test cases in such a way that it tests the ACL functionalities and implements the all the table changes for B,G and H.
 
 Subsequently, we transition to role-based access control (RBAC). Two pertinent tables associated with RBAC include the user table and the roles table, presented in Table 8 and Table 9.
 
@@ -276,7 +274,7 @@ Subsequently, we transition to role-based access control (RBAC). Two pertinent t
 |               |       |       |          |       | **Table 9: The role table** |
 |               |       |       |          |
 
-In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still excluded. To accommodate changes in the company's organizational structure, the initial step involves removing B from the user table. Subsequently, the role of G is adjusted from "user" to "user,service_tech," with different roles connected using ",."For the two recently included employees, I is assigned the role of root_user, while H is designated as an user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
+In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still included. To accommodate changes in the company's organizational structure, the initial step involves removing B from the user table. Subsequently, the role of G is adjusted from "user" to "user,service_tech," with different roles connected using ",".For the two recently included employees, I is assigned the role of root_user, while H is designated as a user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
 
 | **username** | **password_hash** | **role**                         |
 | ------------ | ----------------- | -------------------------------- |
@@ -293,17 +291,15 @@ In contrast to the previous table, roles are introduced for users in this setup,
 
 The implementation of the role-based access control mechanism has successfully met the following requirements:
 
-• Development of the role-based access control mechanism prototype.
+• Development of the role-based access control mechanism prototype that simulates the running of role based access control requirements for our users.
 
-• Specification of the role hierarchy in an external file.
+• Specification of the role hierarchy in a MySQL database.
 
 • Incorporation of modifications to the role-based access control prototypes to reflect changes in company personnel.
 
-• Introduction of an integration test named `RoleBasedControlTest` to assess the functionality of the role-based access control mechanism, ensuring effective user access control.
+• Addition of `ClientRole.java` that handles the changes on the Role-Based implementation after filling up the role column in the users table. This test aims to verify the access control list's compliance with updated policy settings for users B, G and H.
 
-• Implementation of an integration test named `StaffChangedOnRoleBasedControlTest` to simulate shifts in company staff and validate the adaptive nature of the role-based access control mechanism.
-
-However, both access control systems fall short in addressing two major requirements. Firstly, the absence of a registration API necessitates manual insertion of all users into the database. For testing purposes, users are initially inserted through the database API, after which the access control mechanism is tested on them. Secondly, there is a lack of APIs to facilitate changes in user permissions, which can only be achieved through direct manipulation of the database. These limitations contribute to the application's complexity in user management. Additionally, the absence of a proper UI must be acknowledged as a drawback, as it is crucial for the practical usability of the application.
+However, both of the above mechanisms fall short in addressing two issues. Firstly, there is no registration API so users are inserted manually into the database, after which both of the clients are tested on them. Secondly, there is no proper UI for registration of users, which hampers the practical usability of our application.
 
 ## Discussion
 
