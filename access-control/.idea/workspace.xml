@@ -4,21 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a52af00a-d0cc-48a0-a968-9c6d00e4ce4d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/create_tables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/create_tables.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/client/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/client/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/server/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/server/Session.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/server/Session.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/Printer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/Printer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterServant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/server/print/PrinterServant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/util/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/util/Configuration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/util/Crypto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/util/Crypto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/util/DB.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../authentication/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../authentication/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="a52af00a-d0cc-48a0-a968-9c6d00e4ce4d" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -72,13 +58,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "/home/hollowman/Downloads/DTU/02239-Data-Security/access-control"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/hollowman/Downloads/DTU/02239-Data-Security/access-control&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Gradle.access-control [client]">
     <configuration name="Client" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="dtu.compute.client.Client" />
