@@ -119,7 +119,7 @@ The Role-Based implementation of the access control mechanism is defined in the 
 | ------------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
 | boss       | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
 | user | 1     | 1     | 0        | 0           | 0    | 0       | 0      | 0          | 0         |
-| staff       | 0     | 0     | 0        | 1           | 1    | 0       | 0      | 0          | 0         |
+| staff       | 0     | 0     | 0        | 1           | 1    | 1       | 0      | 0          | 0         |
 | root_user    | 1     | 1     | 1        | 0           | 0    | 1       | 0      | 0          | 0         |
 | tech  | 0     | 0     | 0        | 0           | 0    | 0       | 1      | 1          | 1         |
 |               |       |       |          | **Table-2** |      |         |        |            |           |
@@ -309,13 +309,11 @@ However, both access control systems fall short in addressing two major requirem
 <!-- > (max 2 page)
 > This section documents the reflections and discussions of the final task. -->
 
-In contrast to the role-based access control (RBAC) mechanism, we posit that the access control list (ACL) mechanism provides greater flexibility for organizations with less pronounced hierarchies. The ACL allows administrators to finely define the permissibility of each operation for specific users, making it suitable for smaller organizations with manageable effort requirements. Conversely, RBAC governs operation permissions collectively, making ACL a favorable choice for organizations desiring fine-grained access control. For minor adjustments, such as permitting E to perform a restart operation, the admin only needs to modify the corresponding ACL table value from 0 to 1. If RBAC is employed, the admin must create a new role for this change, potentially leading to role redundancy and management challenges. If frequent fine-grained permission changes occur, RBAC may prove more cumbersome to handle.
+The Access Control List (ACL) system is better suited for smaller organizations with less rigid hierarchies than the Role-Based Access Control (RBAC) system. ACL offers detailed control over individual user permissions, ideal for smaller teams where managing permissions is less complex. For instance, an administrator can easily adjust a user's permission for a specific operation by altering an entry in the ACL table. This precision makes ACL advantageous for companies like startups with around 20 employees, where roles are more fluid and resources are limited.
 
-This advantage is particularly evident in systems with fewer users, such as startups with around 20 employees and limited resources. In such dynamic environments where employee roles are fluid, an ACL system offers superior adaptability.
+In contrast, RBAC is more efficient for larger organizations with many users and resources. It streamlines permission management by assigning users to predefined roles, reducing the administrative burden of managing individual permissions. This system is particularly useful in larger organizations with frequent employee role changes, as it minimizes the risk of misconfiguration and enhances security. RBAC's role-based approach simplifies managing complex access controls, making it less prone to errors than ACL in larger settings.
 
-Contrary to ACL, we posit that the strength of RBAC lies in its ability to efficiently manage permissions for a large number of users accessing numerous resources. This is especially beneficial for large organizations, alleviating administrative burdens compared to ACL. In RBAC, the role system acts as middleware, simplifying the complexity of concrete permission control. Admins only need to ensure that users are assigned the correct role, without delving into intricate access control policies to detect potential permission misassignments. In significant organizations where employee position changes occur frequently, RBAC significantly reduces the risk of misconfiguration and enhances system security.
-
-Regarding expressive power, we contend that both ACL and RBAC adeptly capture organizational changes related to user enrollment and departure. ACL excels in specifying user permission adjustments, while RBAC is particularly effective in delineating changes in employee positions, especially when such changes are commonplace.
+Both ACL and RBAC effectively handle changes in organizational structure, such as user onboarding and offboarding. ACL is more adept at managing specific permission changes for users, while RBAC excels in adapting to shifts in employee roles, especially in environments where such changes are frequent.
 
 ## Conclusion
 
