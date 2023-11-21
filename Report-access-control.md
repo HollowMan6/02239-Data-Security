@@ -182,6 +182,8 @@ The evaluation should provide a simple summary of which of the requirements are 
 
 Within this segment, we provide an account of the prototype that enforces the access control policies outlined in this task. Commencing with the discussion on access control list (ACL), two tables are pertinent to ACL, specifically the user table and the access control list table. The existing contents of these tables before any modifications are presented below:
 
+The SQL database storing users' accounts should now reflect the changes to handle both ACL and Role-Based AC mechanisms 
+
 | **username** | **role**                | **password_hash** |
 | ------------ | ----------------------- | ----------------- |
 | A        | none                    | _passwdHashA_               |
@@ -320,7 +322,7 @@ Both ACL and RBAC effectively handle changes in organizational structure, such a
 <!-- > (max 1 page)
 > The conclusions should summarize the problems addressed in the report and clearly identify which of the requirements are satisfied and which are not (a summary of Section 4). The conclusions may also include a brief outline of future work. -->
 
-In this laboratory exercise focused on access control, we integrated access control mechanisms into the system previously developed in the authentication laboratory. The implemented access control mechanisms encompass the access control list (ACL) and role-based access control (RBAC). Initially, we constructed prototypes for both mechanisms and subsequently refined them to adapt to organizational changes in employee roles. Two distinct figures present a clearly defined role hierarchy. To ensure the accuracy of these mechanisms, we developed corresponding integration tests to simulate their expected functionality.
+In this lab exercise focused on access control, we integrated access control mechanisms into the system previously developed in the authentication lab. The implemented access control mechanisms encompass the access control list (ACL) and role-based access control (RBAC). Initially, we constructed prototypes for both mechanisms and subsequently refined them to adapt to organizational changes in employee roles. Two distinct figures present a clearly defined role hierarchy. To ensure the accuracy of these mechanisms, we developed corresponding integration tests to simulate their expected functionality.
 
 Additionally, we fulfilled the requirement of documenting the access control policy in external media. Similar to the previous lab, we stored relevant information in the database, aligning with real-world system practices. A configuration item was defined to facilitate the switch between the two access control mechanisms, covering all outlined requirements in Section 1 Introduction. However, certain unmet requirements include the absence of an interface for user registration and permission changes, impacting the practical utility of the application. Moreover, from the user's perspective, the system lacks a proper user interface; all functions are invoked through Java Remote Method Invocation, making practical use challenging.
 
