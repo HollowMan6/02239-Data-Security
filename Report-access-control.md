@@ -173,7 +173,6 @@ With this implementation, the user's SQL database will no longer contain have th
 | G       | user                   | _passwdHashG_               |
 |              | Table 3: User's Roles: |                   |
 
---------------------------------------------------------------------------DONE SO FAR
 ## Evaluation
 
 <!-- > (max 4 pages)
@@ -182,22 +181,21 @@ The evaluation should provide a simple summary of which of the requirements are 
 
 Within this segment, we provide an account of the prototype that enforces the access control policies outlined in this task. Commencing with the discussion on access control list (ACL), two tables are pertinent to ACL, specifically the user table and the access control list table. The existing contents of these tables before any modifications are presented below:
 
-The SQL database storing users' accounts should now reflect the changes to handle both ACL and Role-Based AC mechanisms 
+The SQL database storing users' accounts should now reflect the changes to handle both ACL and Role-Based AC mechanisms. For such reason we designed its new structure by adding the role field in the users table, with initial value set as _None_:
 
-| **username** | **role**                | **password_hash** |
-| ------------ | ----------------------- | ----------------- |
-| A        | none                    | _passwdHashA_               |
-| B          | none                    | _passwdHashB_               |
-| C      | none                    | _passwdHashC_               |
-| D        | none                    | _passwdHashD_               |
-| E        | none                    | _passwdHashE_               |
-| F         | none                    | _passwdHashF_               |
-| G       | none                    | _passwdHashG_               |
-|              | **Table 4: User Table** |                   |
+| **username** | **password_hash** | **role**                |
+| ------------ | ----------------- | ----------------------- |
+| A            | _passwdHashA_     | none                    |
+| B            | _passwdHashB_     | none                    |
+| C            | _passwdHashC_     | none                    |
+| D            | _passwdHashD_     | none                    |
+| E            | _passwdHashE_     | none                    |
+| F            | _passwdHashF_     | none                    |
+| G            | _passwdHashG_     | none                    |
+|              |**Table 4: User Table**|                     |
 
-In this context, the role attribute for all users is configured as "none" since we are presently utilizing the access control list mechanism. The role attribute is irrelevant to our current scenario, and its assignment to "none" signifies that this attribute is not active. Additionally, the password hashes are excluded in this presentation.
 
-The user table, in this instance, solely handles user authentication. Detailed access control policies are stored in the access control list table, as illustrated in Table 5.
+The user table, in this instance, solely handles user authentication. Specific access control policies are stored in the access control list table, as illustrated in Table 5.
 
 | username | print | queue | topQueue | start | stop                             | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----- | -------------------------------- | ------- | ------ | ---------- | --------- |
@@ -211,9 +209,10 @@ The user table, in this instance, solely handles user authentication. Detailed a
 |          |       |       |          |       | **Table 5: Access Control List** |
 |          |       |       |          |
 
-Following this, alterations are made to the content of the two tables to align with modifications in the company's personnel. Initially, B's details are removed from both the user table and access control list table. Subsequently, as G assumes some of B's responsibilities and takes on the role of a service technician, corresponding permissions are assigned to G in the access control list. New employees can be effortlessly incorporated into both the user table and access control list table, accompanied by relevant permission details. Post the organizational changes, the revised content of the two tables is illustrated in Table 6 and Table 7.
 
-For specific testing purposes, two integration tests have been defined. The first, mentioned in section 2, is termed `AccessControlListTest`, examining the functionality of the access control list prototype. The second test, named `StaffChangeOnAccessControlListTest`, involves adding all initial employees to the database and subsequently modifying the database content to simulate shifts in company staff. This test evaluates whether the ACL mechanism effectively adheres to the revised policies.
+Subsequent to these changes, the content of both the user table and the access control list table is updated to reflect the recent shifts in the company's staff structure. Initially, B's records are deleted from both tables. Then, with G taking over some of B's duties and stepping into the role of a service technician, G is granted the appropriate permissions in the access control list. The process for adding new employees (such as  H) to both the user table and the access control list is straightforward, ensuring their permissions are accurately represented. After these organizational adjustments, the updated versions of the tables are presented in Table 6 and Table 7.
+
+For testing, two specific clients have been designed. The client for the ACL case is named  `ClientACL.java`, and can be found in _dtu.compute.client_. It tests the ACL functionalities and implements the all the table changes for B,G and H. The second client in the same folder, named `ClientRole.java`, handles the same changes on the Role-Based implementation after filling up the role column in the users table. This test aims to verify the access control list's compliance with updated policy settings.
 
 | **username** | **role**                        | **password_hash** |
 | ------------ | ------------------------------- | ----------------- |
