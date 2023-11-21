@@ -12,5 +12,5 @@ public class Configuration {
     public static final String accessControlModel = "accessControlList";
     public static final String[] testACUser = {"A", "B", "C", "D", "E", "F", "G"};
     public static final int[] testACList = {0b111111111, 0b000111111, 0b111001000, 0b110000000, 0b110000000, 0b110000000, 0b110000000};
-    public static final String[] testUserRole = {"boss", "staff&tech", "root_user", "user", "user", "user", "user"};
+    public static final String[] testUserRole = {"boss", "staff,tech", "root_user", "user", "user", "user", "user"};
 }

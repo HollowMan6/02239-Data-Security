@@ -20,8 +20,8 @@ public class Role implements Model {
     public boolean isMethodGranted(String username, String method) {
         Set<String> roleSet = new HashSet<>();
         String userRoleByName = user.getUserRoleByName(username);
-        if (!userRoleByName.contains("&")) roleSet.add(userRoleByName);
-        else roleSet.addAll(Arrays.stream(userRoleByName.split("&")).collect(Collectors.toList()));
+        if (!userRoleByName.contains(",")) roleSet.add(userRoleByName);
+        else roleSet.addAll(Arrays.stream(userRoleByName.split(",")).collect(Collectors.toList()));
         boolean result = isMethodGrantedForRole(method, roleSet);
         if (result) logger.info(String.format("%s with role %s is allowed to %s", username, userRoleByName, method));
         else logger.info(String.format("%s with role %s is not allowed to %s", username, userRoleByName, method));

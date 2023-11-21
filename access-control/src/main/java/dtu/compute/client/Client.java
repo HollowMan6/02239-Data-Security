@@ -345,7 +345,7 @@ public class Client {
         user.deleteUserByName("I");
         // Change the role of G 
         String originalRole = user.getUserRoleByName("G");
-        user.updateUserRoleByName(originalRole + "&" + "tech", "G");
+        user.updateUserRoleByName(originalRole + "," + "tech", "G");
         // Add new employee H 
         user.addUser("H", Crypto.salt(testUserPWHash), "user");
         // Add new employee I 
