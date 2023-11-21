@@ -11,7 +11,6 @@
 <!-- > (max 1 page)
 > The introduction should provide a general introduction to the problem of access control in client/server applications. It should define the scope of the answer, i.e. explicitly state what problems are considered, and outline the proposed solution. Finally, it should clearly state which of the identified goals are met by the developed software. -->
 
-
 Access control is a critical component in managing information security within any client/server system. It ensures that only authorized users can access specific resources, maintaining the integrity and confidentiality of sensitive data. Effective access control is pivotal in environments where information security is paramount.
 
 The two primary access control models are Access Control Lists (ACL) and Role-Based Access Control (RBAC). ACLs are focused on individual users, granting specific permissions to each user for various operations. In contrast, RBAC assigns permissions based on user roles within the organization, streamlining the management of user privileges based on their job functions or responsibilities.
@@ -30,21 +29,20 @@ For the purpose of this AC lab, the goal is to achieve the following properties:
 
 This paragraph offers a concise of the project solution using ACL mechanism. More precisely, by using the discretionary access control framework (DAC), an access control matrix summarises each user's permissions on each operation on the printing server. Moreover, the implementation uses an SQL database with primary key _username_ to reference all service users, and permissions to each resource are encoded with binary values (1=True or 0=False). Hereby the matrix overview:
 
-
-| username | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
+Table 1: Access control matrix for each user
+| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
-| A    | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
-| B      | 0     | 0     | 0        | 1           | 1    | 1       | 1      | 1          | 1         |
-| C  | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 0          | 0         |
-| D    | 1     | 1     | 1        | 1           | 1    | 1       | 0      | 0          | 0         |
-| E    | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
-| F     | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
-| G   | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
-|               |       |       |          | **Table-1** |      |         |        |            |           |
+| A | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| B | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 |
+| C | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 |
+| D | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 |
+| E | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| F | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| G | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 This table is recorded in a database table and is stored together with the user table. It's important to note that there are no available APIs for adding user information to both the access control list table and the user table. To include any pertinent data, one must directly manipulate the database or use JDBC APIs that are already integrated within the system.
 
-To implement the access control mechanism in our application, we start by creating a Java interface in _dtu.compute.server.ac_ named  `Model`, which includes the following code:
+To implement the access control mechanism in our application, we start by creating a Java interface in _dtu.compute.server.ac_ named `Model`, which includes the following code:
 
 ```
 public interface Model {
@@ -55,6 +53,7 @@ public interface Model {
 This interface contains a single method, `isMethodGranted`, which takes the username and method name as arguments to check if the user is authorized to use the method. The specifics of this verification depend on the class's implementation. Each class that implements this interface will define its own way of checking user permissions, varying according to the access control mechanism used. The two implementations are defined in _dtu.compute.server.ac_ as follows: _List.java_ for ACL and _Role.java_ for Role-Based:
 
 - List.java
+
 ```
 @Override
 public boolean isMethodGranted(String username, String method) {
@@ -67,6 +66,7 @@ public boolean isMethodGranted(String username, String method) {
 ```
 
 - Role.java
+
 ```
 @Override
 public boolean isMethodGranted(String username, String method) {
@@ -82,6 +82,7 @@ public boolean isMethodGranted(String username, String method) {
 ```
 
 To switch between ACL and Role-Based control mechanisms, the software uses the configuration file _util.Configuration.java_ which contains a property named `accessControlModel`. This property can have two different values, namely:
+
 - accessControlList
 - roleBasedAccessControl
 
@@ -96,8 +97,7 @@ else
     logger.error("Invalid Configuration");
 ```
 
-
-For every method within the printing system, the AC verification is implemented after checking user authentication. Permissions are checked through the specific implementation of  `isMethodGranted`, and after retreiving methodName and userName, if the permission is not granted, the client will display the NOT_ALLOWED error message:
+For every method within the printing system, the AC verification is implemented after checking user authentication. Permissions are checked through the specific implementation of `isMethodGranted`, and after retreiving methodName and userName, if the permission is not granted, the client will display the NOT_ALLOWED error message:
 
 ```
 String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -113,27 +113,27 @@ In terms of our design choices, we chose to keep the access control list in the 
 <!-- > (max 3 pages including diagrams)
 > This section should document the results of the role mining process performed in in Task 2 and provide a short overview of the implementation of the role based access control mechanism implemented in Task 3 along with the motivation behind all non-trivial design choices. In particular, it must describe the syntax used to specify the RBAC policy. -->
 
-The Role-Based implementation of the access control mechanism is defined in the following Table-2: each role type has different permissions on the service types provided by the printer and they are organized in the hierarchical structure shown in Figure 1.
+The Role-Based implementation of the access control mechanism is defined in the following Table 2: each role type has different permissions on the service types provided by the printer and they are organized in the hierarchical structure shown in Figure 1.
 
-| Role      | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
+Table 2: Access control matrix for each role
+| Role | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
 | ------------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
-| boss       | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
-| user | 1     | 1     | 0        | 0           | 0    | 0       | 0      | 0          | 0         |
-| staff       | 0     | 0     | 0        | 1           | 1    | 1       | 0      | 0          | 0         |
-| root_user    | 1     | 1     | 1        | 0           | 0    | 1       | 0      | 0          | 0         |
-| tech  | 0     | 0     | 0        | 0           | 0    | 0       | 1      | 1          | 1         |
-|               |       |       |          | **Table-2** |      |         |        |            |           |
+| boss | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| user | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| staff | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 |
+| root_user | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
+| tech | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 |
 
 | ![role-heirarchy.png](hierarchy.png) |
-| :---------------------------------------: |
-|       **Figure: 1 Role Heirarchy**        |
+| :----------------------------------: |
+|     **Figure 1: Role Heirarchy**     |
 
 In order to use Role-Based AC mechanism, the property `accessControlModel` contained in the file _util.Configuration.java_ is set to _roleBasedAccessControl_ . Then, the class `Role.java` in _dtu.compute.server.ac_ handles the implementation of `Model.java` interface. More precisely, it implements the two methods:
 
 - `isMethodGranted`
 - `isMethodGrantedForRole`
 
-The former checks specific roles associated to the provided username. The latter checks role's permission relative to the specified printer service. Whenever a user has multiple roles, his final role is defined as a comma-separeted sequence of those, and service permissions are checked against each user associated role. Hereby we provide the full implementation: 
+The former checks specific roles associated to the provided username. The latter checks role's permission relative to the specified printer service. Whenever a user has multiple roles, his final role is defined as a comma-separeted sequence of those, and service permissions are checked against each user associated role. Hereby we provide the full implementation:
 
 ```
 public class Role implements Model {
@@ -160,18 +160,18 @@ public class Role implements Model {
 }
 ```
 
-Finally,  the user's SQL database will no longer contain ACL permissions, rather the username, role and password hashes as shown in the following structure:
+Finally, the user's SQL database will no longer contain ACL permissions, rather the username, role and password hashes as shown in the following structure:
 
-| **username** | **role**                        | **password_hash** |
+Table 3: User's roles
+| **username** | **password_hash** | **role** |
 | ------------ | ------------------------------- | ----------------- |
-| A        | boss                         | _passwdHashA_               |
-| B          | staff,tech                 | _passwdHashB_               |
-| C      | root_user                      | _passwdHashC_               |
-| D        | user                   | _passwdHashD_               |
-| E        | user                   | _passwdHashE_               |
-| F         | user                   | _passwdHashF_               |
-| G       | user                   | _passwdHashG_               |
-|              | Table 3: User's Roles: |                   |
+| A | _passwdHashA_ | boss |
+| B | _passwdHashB_ | staff,tech |
+| C | _passwdHashC_ | root_user |
+| D | _passwdHashD_ | user |
+| E | _passwdHashE_ | user |
+| F | _passwdHashF_ | user |
+| G | _passwdHashG_ | user |
 
 ## Evaluation
 
@@ -183,121 +183,113 @@ Within this segment, we provide an account of the prototype that enforces the ac
 
 The SQL database storing users' accounts should now reflect the changes to handle both ACL and Role-Based AC mechanisms. For such reason we designed its new structure by adding the role field in the users table, with initial value set as _None_:
 
-| **username** | **password_hash** | **role**                |
+Table 4: User table
+| **username** | **password_hash** | **role** |
 | ------------ | ----------------- | ----------------------- |
-| A            | _passwdHashA_     | none                    |
-| B            | _passwdHashB_     | none                    |
-| C            | _passwdHashC_     | none                    |
-| D            | _passwdHashD_     | none                    |
-| E            | _passwdHashE_     | none                    |
-| F            | _passwdHashF_     | none                    |
-| G            | _passwdHashG_     | none                    |
-|              |**Table 4: User Table**|                     |
-
+| A | _passwdHashA_ | none |
+| B | _passwdHashB_ | none |
+| C | _passwdHashC_ | none |
+| D | _passwdHashD_ | none |
+| E | _passwdHashE_ | none |
+| F | _passwdHashF_ | none |
+| G | _passwdHashG_ | none |
 
 The user table, in this instance, solely handles user authentication. Specific access control policies are stored in the access control list table, as illustrated in Table 5.
 
-| username | print | queue | topQueue | start | stop                             | restart | status | readConfig | setConfig |
+Table 5: Access Control List
+| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----- | -------------------------------- | ------- | ------ | ---------- | --------- |
-| A    | 1     | 1     | 1        | 1     | 1                                | 1       | 1      | 1          | 1         |
-| C  | 1     | 1     | 1        | 0     | 0                                | 1       | 0      | 0          | 0         |
-| B      | 0     | 0     | 0        | 1     | 1                                | 1       | 1      | 1          | 1         |
-| D    | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
-| E    | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
-| F     | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
-| G   | 1     | 1     | 1        | 0     | 0                                | 0       | 0      | 0          | 0         |
-|          |       |       |          |       | **Table 5: Access Control List** |
-|          |       |       |          |
+| A | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| B | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 |
+| C | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
+| D | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| E | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| F | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| G | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 
+Subsequent to these changes, the content of both the user table and the access control list table is updated to reflect the recent shifts in the company's staff structure. Initially, B's records are deleted from both tables. Then, with G taking over some of B's duties and stepping into the role of a service technician, G is granted the appropriate permissions in the access control list. The process for adding new employees (such as H) to both the user table and the access control list is straightforward, ensuring their permissions are accurately represented. After these organizational adjustments, the updated versions of the tables are presented in Table 6 and Table 7.
 
-Subsequent to these changes, the content of both the user table and the access control list table is updated to reflect the recent shifts in the company's staff structure. Initially, B's records are deleted from both tables. Then, with G taking over some of B's duties and stepping into the role of a service technician, G is granted the appropriate permissions in the access control list. The process for adding new employees (such as  H) to both the user table and the access control list is straightforward, ensuring their permissions are accurately represented. After these organizational adjustments, the updated versions of the tables are presented in Table 6 and Table 7.
+For testing, two specific clients have been designed. The client for the ACL case is named `ClientACL.java`, and can be found in _dtu.compute.client_. It tests the ACL functionalities and implements the all the table changes for B,G and H. The second client in the same folder, named `ClientRole.java`, handles the same changes on the Role-Based implementation after filling up the role column in the users table. This test aims to verify the access control list's compliance with updated policy settings.
 
-For testing, two specific clients have been designed. The client for the ACL case is named  `ClientACL.java`, and can be found in _dtu.compute.client_. It tests the ACL functionalities and implements the all the table changes for B,G and H. The second client in the same folder, named `ClientRole.java`, handles the same changes on the Role-Based implementation after filling up the role column in the users table. This test aims to verify the access control list's compliance with updated policy settings.
-
-| **username** | **password_hash** | **role**                        |
+Table 6: User table updated
+| **username** | **password_hash** | **role** |
 | ------------ | ----------------- | ------------------------------- |
-| A            | xxx               | none                            |
-| C            | xxx               | none                            |
-| D            | xxx               | none                            |
-| I            | xxx               | none                            |
-| F            | xxx               | none                            |
-| G            | xxx               | none                            |
-| E            | xxx               | none                            |
-| H            | xxx               | none                            |
-|              |**Table 6: User Table Updated**|                     |
+| A | _passwdHashA_ | none |
+| C | _passwdHashC_ | none |
+| D | _passwdHashD_ | none |
+| E | _passwdHashE_ | none |
+| F | _passwdHashF_ | none |
+| G | _passwdHashG_ | none |
+| H | _passwdHashH_ | none |
+| I | _passwdHashI_ | none |
 
-
-| username | print | queue | topQueue | start | stop                                     | restart | status | readConfig | setConfig |
+Table 7: Access Control List updated
+| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----- | ---------------------------------------- | ------- | ------ | ---------- | --------- |
-| A    | 1     | 1     | 1        | 1     | 1                                        | 1       | 1      | 1          | 1         |
-| C  | 1     | 1     | 1        | 0     | 0                                        | 1       | 0      | 0          | 0         |
-| D    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
-| E    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
-| F     | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
-| G   | 1     | 1     | 0        | 0     | 0                                        | 0       | 1      | 1          | 1         |
-| I      | 1     | 1     | 1        | 0     | 0                                        | 1       | 0      | 0          | 0         |
-| H    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
-|          |       |       |          |       | **Table 7: Access Control List Updated** |
-|          |       |       |          |
+| A | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| C | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
+| D | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| E | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| F | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| G | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 |
+| H | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| I | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
 
 The implementation of the access control list mechanism has successfully met the following requirements:
 
-• Development of the access control list mechanism prototype that simulates the running of ACL requirements in the given specifications for our set of users.
+- Development of the access control list mechanism prototype that simulates the running of ACL requirements in the given specifications for our set of users.
 
-• Specification of the access control list in a MySQL database.
+- Specification of the access control list in database.
 
-• Incorporation of modifications to the access control method prototypes to reflect changes in company personnel.
+- Incorporation of modifications to the access control method prototypes to reflect changes in company personnel.
 
-• Addition of `ClientACL.java` to simulate and validate the test cases in such a way that it tests the ACL functionalities and implements the all the table changes for B,G and H.
+- Addition of `ClientACL.java` to simulate and validate the test cases in such a way that it tests the ACL functionalities and implements the all the table changes for B,G and H.
 
 Subsequently, we transition to role-based access control (RBAC). Two pertinent tables associated with RBAC include the user table and the roles table, presented in Table 8 and Table 9.
 
-| **username** | **password_hash** | **role**                           |
+Table 8: User table with roles
+| **username** | **password_hash** | **role** |
 | ------------ | ----------------- | ---------------------------------- |
-| A            | xxx               | boss                               |
-| C            | xxx               | root_user                          |
-| B            | xxx               | staff, tech                        |
-| D            | xxx               | user                               |
-| E            | xxx               | user                               |
-| F            | xxx               | user                               |
-| G            | xxx               | user                               |
-|              |**Table 8: User Table with roles**|                     |
+| A | _passwdHashA_ | boss |
+| B | _passwdHashB_ | staff,tech |
+| C | _passwdHashC_ | root_user |
+| D | _passwdHashD_ | user |
+| E | _passwdHashE_ | user |
+| F | _passwdHashF_ | user |
+| G | _passwdHashG_ | user |
 
-
-| role      | print | queue | topQueue | start | stop                        | restart | status | readConfig | setConfig |
+Table 9: The role table
+| role | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
 | ------------- | ----- | ----- | -------- | ----- | --------------------------- | ------- | ------ | ---------- | --------- |
-| boss       | 1     | 1     | 1        | 1     | 1                           | 1       | 1      | 1          | 1         |
-| staff       | 1     | 1     | 1        | 0     | 0                           | 1       | 0      | 0          | 0         |
-| root_user    | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
-| service_tech  | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
-| user | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
-|               |       |       |          |       | **Table 9: The role table** |
-|               |       |       |          |
+| boss | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| staff | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
+| tech | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| root_user | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| user | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 
-In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still included. To accommodate changes in the company's organizational structure, the initial step involves removing B from the user table. Subsequently, the role of G is adjusted from "user" to "user,service_tech," with different roles connected using ",".For the two recently included employees, I is assigned the role of root_user, while H is designated as a user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
+In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still included. To accommodate changes in the company's organizational structure, the initial step involves removing B from the user table. Subsequently, the role of G is adjusted from "user" to "user,tech," with different roles connected using ",".For the two recently included employees, I is assigned the role of root_user, while H is designated as a user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
 
-| **username** | **password_hash** | **role**                         |
+Table 10: User table updated
+| **username** | **password_hash** | **role** |
 | ------------ | ----------------- | -------------------------------- |
-| A            | xxx               | boss                             |
-| C            | xxx               | root_user                        |
-| D            | xxx               | user                             |
-| F            | xxx               | user                             |
-| E            | xxx               | user                             |
-| G            | xxx               | user, service_tech               |
-| H            | xxx               | user                             |
-| I            | xxx               | root_user                        |
-|              |  **Table 10: User Table updated**|                   |
-
+| A | _passwdHashA_ | boss |
+| C | _passwdHashC_ | root_user |
+| D | _passwdHashD_ | user |
+| E | _passwdHashE_ | user |
+| F | _passwdHashF_ | user |
+| G | _passwdHashG_ | user,tech |
+| H | _passwdHashH_ | user |
+| I | _passwdHashI_ | root_user |
 
 The implementation of the role-based access control mechanism has successfully met the following requirements:
 
-• Development of the role-based access control mechanism prototype that simulates the running of role based access control requirements for our users.
+- Development of the role-based access control mechanism prototype that simulates the running of role based access control requirements for our users.
 
-• Specification of the role hierarchy in a MySQL database.
+- Specification of the role hierarchy in database.
 
-• Incorporation of modifications to the role-based access control prototypes to reflect changes in company personnel.
+- Incorporation of modifications to the role-based access control prototypes to reflect changes in company personnel.
 
-• Addition of `ClientRole.java` that handles the changes on the Role-Based implementation after filling up the role column in the users table. This test aims to verify the access control list's compliance with updated policy settings for users B, G and H.
+- Addition of `ClientRole.java` that handles the changes on the Role-Based implementation after filling up the role column in the users table. This test aims to verify the access control list's compliance with updated policy settings for users B, G and H.
 
 However, both of the above mechanisms fall short in addressing two issues. Firstly, there is no registration API so users are inserted manually into the database, after which both of the clients are tested on them. Secondly, there is no proper UI for registration of users, which hampers the practical usability of our application.
 
@@ -319,6 +311,6 @@ Both ACL and RBAC effectively handle changes in organizational structure, such a
 
 In this lab exercise focused on access control, we integrated access control mechanisms into the system previously developed in the authentication lab. The implemented access control mechanisms include the access control list (ACL) and role-based access control (RBAC). Initially, we developed prototypes for both mechanisms and eventually refined them to adapt to actual roles in company. Figure 1 presents a clearly defined role hierarchy. We also developed the corresponding client in those 2 different access control mechanisms with the test cases.
 
-Additionally, we fulfilled the requirement of storing the access control policy securly in external media. Similar to the previous lab, we stored relevant information in the database, aligning with real-world secure system practices. A configuration item was defined to facilitate the switch between the two access control mechanisms, covering all outlined requirements in Section 1 Introduction. 
+Additionally, we fulfilled the requirement of storing the access control policy securly in external media. Similar to the previous lab, we stored relevant information in the database, aligning with real-world secure system practices. A configuration item was defined to facilitate the switch between the two access control mechanisms, covering all outlined requirements in Section 1 Introduction.
 
 For the future, we can explore the integration of other access control mechanisms, such as attribute-based access control. A comparative analysis with the mechanisms discussed in this report could guide the selection of the most suitable one. Additionally, implementing a user-friendly interface for user registration and permission changes would enhance the overall user experience.
