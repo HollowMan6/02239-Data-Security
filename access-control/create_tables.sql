@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS users (
   PRIMARY KEY (username)
 );
 
-
 CREATE TABLE IF NOT EXISTS roles (
   role varchar(12) NOT NULL,
   print int NOT NULL,
@@ -33,3 +32,10 @@ CREATE TABLE IF NOT EXISTS access_control_list (
   set_config int NOT NULL,
   PRIMARY KEY (username)
 );
+
+INSERT into roles (role, print, queue, top_queue, start, stop, restart, status, read_config, set_config) VALUES
+('boss', 1, 1, 1, 1, 1, 1, 1, 1, 1),
+('user', 1, 1, 0, 0, 0, 0, 0, 0, 0),
+('staff', 0, 0, 0, 1, 1, 1, 0, 0, 0),
+('root_user', 1, 1, 1, 0, 0, 1, 0, 0, 0),
+('tech', 0, 0, 0, 0, 0, 0, 1, 1, 1);

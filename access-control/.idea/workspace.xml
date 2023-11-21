@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a52af00a-d0cc-48a0-a968-9c6d00e4ce4d" name="Changes" comment="" />
+    <list default="true" id="a52af00a-d0cc-48a0-a968-9c6d00e4ce4d" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/create_tables.sql" beforeDir="false" afterPath="$PROJECT_DIR$/create_tables.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/client/Client.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/dtu/compute/util/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/dtu/compute/util/Configuration.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -65,19 +70,27 @@
     &quot;last_opened_file_path&quot;: &quot;/home/hollowman/Downloads/DTU/02239-Data-Security/access-control&quot;
   }
 }</component>
-  <component name="RunManager" selected="Gradle.access-control [client]">
-    <configuration name="Client" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="dtu.compute.client.Client" />
-      <module name="access-control.main" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="dtu.compute.client.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+  <component name="RunManager" selected="Gradle.access-control [clientACL]">
+    <configuration name="access-control [clientACL]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clientACL" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
     </configuration>
     <configuration name="access-control [client]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
@@ -164,7 +177,7 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Application.Client" />
+      <item itemvalue="Gradle.access-control [clientACL]" />
       <item itemvalue="Gradle.access-control [client]" />
       <item itemvalue="Gradle.access-control [runMyProgram]" />
       <item itemvalue="Gradle.access-control [server]" />
@@ -172,11 +185,11 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.access-control [client]" />
+        <item itemvalue="Gradle.access-control [clientACL]" />
         <item itemvalue="Gradle.access-control [server]" />
+        <item itemvalue="Gradle.access-control [client]" />
         <item itemvalue="Gradle.access-control [runMyProgram]" />
         <item itemvalue="Gradle.access-control [test]" />
-        <item itemvalue="Application.Client" />
       </list>
     </recent_temporary>
   </component>

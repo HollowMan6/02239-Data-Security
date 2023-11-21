@@ -9,8 +9,15 @@ repositories {
     mavenCentral()
 }
 
-task client(type: JavaExec) {
-    main = 'dtu.compute.client.Client'
+task clientACL(type: JavaExec) {
+    main = 'dtu.compute.client.ClientACL'
+    classpath = sourceSets.main.runtimeClasspath
+
+    jvmArgs = ['-ea']
+}
+
+task clientRole(type: JavaExec) {
+    main = 'dtu.compute.client.ClientRole'
     classpath = sourceSets.main.runtimeClasspath
 
     jvmArgs = ['-ea']
