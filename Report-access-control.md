@@ -21,7 +21,7 @@ For the purpose of this AC lab, the goal is to achieve the following properties:
 - Integrate both ACL and RBAC methodologies, making it possible to switch between the two.
 - External management of ACL parameters.
 - Apply changes in organizational roles and responsibilities, ensuring ongoing relevance and effectiveness.
-- Use test cases to validate software functionalities and correctness.
+- Test software functionalities and correctness.
 
 ## Access Control Lists
 
@@ -214,18 +214,18 @@ Subsequent to these changes, the content of both the user table and the access c
 
 For testing, two specific clients have been designed. The client for the ACL case is named  `ClientACL.java`, and can be found in _dtu.compute.client_. It tests the ACL functionalities and implements the all the table changes for B,G and H. The second client in the same folder, named `ClientRole.java`, handles the same changes on the Role-Based implementation after filling up the role column in the users table. This test aims to verify the access control list's compliance with updated policy settings.
 
-| **username** | **role**                        | **password_hash** |
-| ------------ | ------------------------------- | ----------------- |
-| A        | none                            | xxx               |
-| C      | none                            | xxx               |
-| D        | none                            | xxx               |
-| I          | none                            | xxx               |
-| F         | none                            | xxx               |
-| G       | none                            | xxx               |
-| E        | none                            | xxx               |
-| H        | none                            | xxx               |
-|              | **Table 6: User Table Updated** |
-|              |
+| **username** | **password_hash** | **role**                        |
+| ------------ | ----------------- | ------------------------------- |
+| A            | xxx               | none                            |
+| C            | xxx               | none                            |
+| D            | xxx               | none                            |
+| I            | xxx               | none                            |
+| F            | xxx               | none                            |
+| G            | xxx               | none                            |
+| E            | xxx               | none                            |
+| H            | xxx               | none                            |
+|              |**Table 6: User Table Updated**|                     |
+
 
 | username | print | queue | topQueue | start | stop                                     | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----- | ---------------------------------------- | ------- | ------ | ---------- | --------- |
@@ -254,19 +254,19 @@ The implementation of the access control list mechanism has successfully met the
 
 Subsequently, we transition to role-based access control (RBAC). Two pertinent tables associated with RBAC include the user table and the roles table, presented in Table 8 and Table 9.
 
-| **username** | **role**                           | **password_hash** |
-| ------------ | ---------------------------------- | ----------------- |
-| A        | boss                            | xxx               |
-| C      | root_user                         | xxx               |
-| B          | staff,tech               | xxx               |
-| D        | user                      | xxx               |
-| E        | user                      | xxx               |
-| F         | user                      | xxx               |
-| G       | user                      | xxx               |
-|              | **Table 8: User Table with roles** |
-|              |
+| **username** | **password_hash** | **role**                           |
+| ------------ | ----------------- | ---------------------------------- |
+| A            | xxx               | boss                               |
+| C            | xxx               | root_user                          |
+| B            | xxx               | staff, tech                        |
+| D            | xxx               | user                               |
+| E            | xxx               | user                               |
+| F            | xxx               | user                               |
+| G            | xxx               | user                               |
+|              |**Table 8: User Table with roles**|                     |
 
-| username      | print | queue | topQueue | start | stop                        | restart | status | readConfig | setConfig |
+
+| role      | print | queue | topQueue | start | stop                        | restart | status | readConfig | setConfig |
 | ------------- | ----- | ----- | -------- | ----- | --------------------------- | ------- | ------ | ---------- | --------- |
 | boss       | 1     | 1     | 1        | 1     | 1                           | 1       | 1      | 1          | 1         |
 | staff       | 1     | 1     | 1        | 0     | 0                           | 1       | 0      | 0          | 0         |
@@ -278,18 +278,18 @@ Subsequently, we transition to role-based access control (RBAC). Two pertinent t
 
 In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still excluded. To accommodate changes in the company's organizational structure, the initial step involves removing B from the user table. Subsequently, the role of G is adjusted from "user" to "user,service_tech," with different roles connected using ",."For the two recently included employees, I is assigned the role of root_user, while H is designated as an user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
 
-| **username** | **role**                         | **password_hash** |
-| ------------ | -------------------------------- | ----------------- |
-| A        | boss                          | xxx               |
-| C      | root_user                       | xxx               |
-| D        | user                    | xxx               |
-| F         | user                    | xxx               |
-| E        | user                    | xxx               |
-| G       | user,service_tech       | xxx               |
-| H        | user                    | xxx               |
-| I          | root_user                       | xxx               |
-|              | **Table 10: User Table updated** |
-|              |
+| **username** | **password_hash** | **role**                         |
+| ------------ | ----------------- | -------------------------------- |
+| A            | xxx               | boss                             |
+| C            | xxx               | root_user                        |
+| D            | xxx               | user                             |
+| F            | xxx               | user                             |
+| E            | xxx               | user                             |
+| G            | xxx               | user, service_tech               |
+| H            | xxx               | user                             |
+| I            | xxx               | root_user                        |
+|              |  **Table 10: User Table updated**|                   |
+
 
 The implementation of the role-based access control mechanism has successfully met the following requirements:
 
