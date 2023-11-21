@@ -1,6 +1,5 @@
 package dtu.compute.util.db;
 
-import dtu.compute.server.ac.Model;
 import dtu.compute.util.Configuration;
 
 import java.sql.*;

@@ -33,13 +33,13 @@ the implementation uses an SQL table with primary key _username_ to reference al
 
 | username | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
-| Alice    | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
-| Cecilia  | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 0          | 0         |
-| Bob      | 0     | 0     | 0        | 1           | 1    | 1       | 1      | 1          | 1         |
-| David    | 1     | 1     | 1        | 1           | 1    | 1       | 0      | 0          | 0         |
-| Erica    | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
-| Fred     | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
-| George   | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
+| A    | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
+| C  | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 0          | 0         |
+| B      | 0     | 0     | 0        | 1           | 1    | 1       | 1      | 1          | 1         |
+| D    | 1     | 1     | 1        | 1           | 1    | 1       | 0      | 0          | 0         |
+| E    | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
+| F     | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
+| G   | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
 |          |       |       |          | **Table-1** |      |         |        |            |           |
 
 This table is recorded in a database table and is stored together with the user table. It's important to note that there are no available APIs for adding user information to both the access control list table and the user table. To include any pertinent data, one must directly manipulate the database or use JDBC APIs that are already integrated within the system.
@@ -147,13 +147,13 @@ The application of the specified role table for RBAC mechanism implementation be
 
 | **username** | **role**                        | **password_hash** |
 | ------------ | ------------------------------- | ----------------- |
-| Alice        | manager                         | xxx               |
-| Cecilia      | power_user                      | xxx               |
-| David        | ordinary_user                   | xxx               |
-| Bob          | janitor/service                 | xxx               |
-| Fred         | ordinary_user                   | xxx               |
-| George       | ordinary_user                   | xxx               |
-| Erica        | ordinary_user                   | xxx               |
+| A        | manager                         | xxx               |
+| C      | power_user                      | xxx               |
+| D        | ordinary_user                   | xxx               |
+| B          | janitor/service                 | xxx               |
+| F         | ordinary_user                   | xxx               |
+| G       | ordinary_user                   | xxx               |
+| E        | ordinary_user                   | xxx               |
 |              | Table 3: User Table with Roles: |                   |
 
 ```
@@ -205,13 +205,13 @@ Within this segment, we provide an account of the prototype that enforces the ac
 
 | **username** | **role**                | **password_hash** |
 | ------------ | ----------------------- | ----------------- |
-| Alice        | none                    | xxx               |
-| Cecilia      | none                    | xxx               |
-| David        | none                    | xxx               |
-| Bob          | none                    | xxx               |
-| Fred         | none                    | xxx               |
-| George       | none                    | xxx               |
-| Erica        | none                    | xxx               |
+| A        | none                    | xxx               |
+| C      | none                    | xxx               |
+| D        | none                    | xxx               |
+| B          | none                    | xxx               |
+| F         | none                    | xxx               |
+| G       | none                    | xxx               |
+| E        | none                    | xxx               |
 |              | **Table 4: User Table** |                   |
 
 In this context, the role attribute for all users is configured as "none" since we are presently utilizing the access control list mechanism. The role attribute is irrelevant to our current scenario, and its assignment to "none" signifies that this attribute is not active. Additionally, the password hashes are excluded in this presentation.
@@ -220,43 +220,43 @@ The user table, in this instance, solely handles user authentication. Detailed a
 
 | username | print | queue | topQueue | start | stop                             | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----- | -------------------------------- | ------- | ------ | ---------- | --------- |
-| Alice    | 1     | 1     | 1        | 1     | 1                                | 1       | 1      | 1          | 1         |
-| Cecilia  | 1     | 1     | 1        | 0     | 0                                | 1       | 0      | 0          | 0         |
-| Bob      | 0     | 0     | 0        | 1     | 1                                | 1       | 1      | 1          | 1         |
-| David    | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
-| Erica    | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
-| Fred     | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
-| George   | 1     | 1     | 1        | 0     | 0                                | 0       | 0      | 0          | 0         |
+| A    | 1     | 1     | 1        | 1     | 1                                | 1       | 1      | 1          | 1         |
+| C  | 1     | 1     | 1        | 0     | 0                                | 1       | 0      | 0          | 0         |
+| B      | 0     | 0     | 0        | 1     | 1                                | 1       | 1      | 1          | 1         |
+| D    | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
+| E    | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
+| F     | 1     | 1     | 0        | 0     | 0                                | 0       | 0      | 0          | 0         |
+| G   | 1     | 1     | 1        | 0     | 0                                | 0       | 0      | 0          | 0         |
 |          |       |       |          |       | **Table 5: Access Control List** |
 |          |       |       |          |
 
-Following this, alterations are made to the content of the two tables to align with modifications in the company's personnel. Initially, Bob's details are removed from both the user table and access control list table. Subsequently, as George assumes some of Bob's responsibilities and takes on the role of a service technician, corresponding permissions are assigned to George in the access control list. New employees can be effortlessly incorporated into both the user table and access control list table, accompanied by relevant permission details. Post the organizational changes, the revised content of the two tables is illustrated in Table 6 and Table 7.
+Following this, alterations are made to the content of the two tables to align with modifications in the company's personnel. Initially, B's details are removed from both the user table and access control list table. Subsequently, as G assumes some of B's responsibilities and takes on the role of a service technician, corresponding permissions are assigned to G in the access control list. New employees can be effortlessly incorporated into both the user table and access control list table, accompanied by relevant permission details. Post the organizational changes, the revised content of the two tables is illustrated in Table 6 and Table 7.
 
 For specific testing purposes, two integration tests have been defined. The first, mentioned in section 2, is termed `AccessControlListTest`, examining the functionality of the access control list prototype. The second test, named `StaffChangeOnAccessControlListTest`, involves adding all initial employees to the database and subsequently modifying the database content to simulate shifts in company staff. This test evaluates whether the ACL mechanism effectively adheres to the revised policies.
 
 | **username** | **role**                        | **password_hash** |
 | ------------ | ------------------------------- | ----------------- |
-| Alice        | none                            | xxx               |
-| Cecilia      | none                            | xxx               |
-| David        | none                            | xxx               |
-| Ida          | none                            | xxx               |
-| Fred         | none                            | xxx               |
-| George       | none                            | xxx               |
-| Erica        | none                            | xxx               |
-| Henry        | none                            | xxx               |
+| A        | none                            | xxx               |
+| C      | none                            | xxx               |
+| D        | none                            | xxx               |
+| I          | none                            | xxx               |
+| F         | none                            | xxx               |
+| G       | none                            | xxx               |
+| E        | none                            | xxx               |
+| H        | none                            | xxx               |
 |              | **Table 6: User Table Updated** |
 |              |
 
 | username | print | queue | topQueue | start | stop                                     | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----- | ---------------------------------------- | ------- | ------ | ---------- | --------- |
-| Alice    | 1     | 1     | 1        | 1     | 1                                        | 1       | 1      | 1          | 1         |
-| Cecilia  | 1     | 1     | 1        | 0     | 0                                        | 1       | 0      | 0          | 0         |
-| David    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
-| Erica    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
-| Fred     | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
-| George   | 1     | 1     | 0        | 0     | 0                                        | 0       | 1      | 1          | 1         |
-| Ida      | 1     | 1     | 1        | 0     | 0                                        | 1       | 0      | 0          | 0         |
-| Henry    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
+| A    | 1     | 1     | 1        | 1     | 1                                        | 1       | 1      | 1          | 1         |
+| C  | 1     | 1     | 1        | 0     | 0                                        | 1       | 0      | 0          | 0         |
+| D    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
+| E    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
+| F     | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
+| G   | 1     | 1     | 0        | 0     | 0                                        | 0       | 1      | 1          | 1         |
+| I      | 1     | 1     | 1        | 0     | 0                                        | 1       | 0      | 0          | 0         |
+| H    | 1     | 1     | 0        | 0     | 0                                        | 0       | 0      | 0          | 0         |
 |          |       |       |          |       | **Table 7: Access Control List Updated** |
 |          |       |       |          |
 
@@ -272,13 +272,13 @@ Subsequently, we transition to role-based access control (RBAC). Two pertinent t
 
 | **username** | **role**                           | **password_hash** |
 | ------------ | ---------------------------------- | ----------------- |
-| Alice        | manager                            | xxx               |
-| Cecilia      | power_user                         | xxx               |
-| Bob          | janitor&service_tech               | xxx               |
-| David        | ordinary_user                      | xxx               |
-| Erica        | ordinary_user                      | xxx               |
-| Fred         | ordinary_user                      | xxx               |
-| George       | ordinary_user                      | xxx               |
+| A        | manager                            | xxx               |
+| C      | power_user                         | xxx               |
+| B          | janitor&service_tech               | xxx               |
+| D        | ordinary_user                      | xxx               |
+| E        | ordinary_user                      | xxx               |
+| F         | ordinary_user                      | xxx               |
+| G       | ordinary_user                      | xxx               |
 |              | **Table 8: User Table with roles** |
 |              |
 
@@ -292,18 +292,18 @@ Subsequently, we transition to role-based access control (RBAC). Two pertinent t
 |               |       |       |          |       | **Table 9: The role table** |
 |               |       |       |          |
 
-In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still excluded. To accommodate changes in the company's organizational structure, the initial step involves removing Bob from the user table. Subsequently, the role of George is adjusted from "ordinary_user" to "ordinary_user&service_tech," with different roles connected using "&."For the two recently included employees, Ida is assigned the role of power_user, while Henry is designated as an ordinary_user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
+In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still excluded. To accommodate changes in the company's organizational structure, the initial step involves removing B from the user table. Subsequently, the role of G is adjusted from "ordinary_user" to "ordinary_user&service_tech," with different roles connected using "&."For the two recently included employees, I is assigned the role of power_user, while H is designated as an ordinary_user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
 
 | **username** | **role**                         | **password_hash** |
 | ------------ | -------------------------------- | ----------------- |
-| Alice        | manager                          | xxx               |
-| Cecilia      | power_user                       | xxx               |
-| David        | ordinary_user                    | xxx               |
-| Fred         | ordinary_user                    | xxx               |
-| Erica        | ordinary_user                    | xxx               |
-| George       | ordinary_user&service_tech       | xxx               |
-| Henry        | ordinary_user                    | xxx               |
-| Ida          | power_user                       | xxx               |
+| A        | manager                          | xxx               |
+| C      | power_user                       | xxx               |
+| D        | ordinary_user                    | xxx               |
+| F         | ordinary_user                    | xxx               |
+| E        | ordinary_user                    | xxx               |
+| G       | ordinary_user&service_tech       | xxx               |
+| H        | ordinary_user                    | xxx               |
+| I          | power_user                       | xxx               |
 |              | **Table 10: User Table updated** |
 |              |
 
@@ -322,7 +322,7 @@ However, both access control systems fall short in addressing two major requirem
 <!-- > (max 2 page)
 > This section documents the reflections and discussions of the final task. -->
 
-In contrast to the role-based access control (RBAC) mechanism, we posit that the access control list (ACL) mechanism provides greater flexibility for organizations with less pronounced hierarchies. The ACL allows administrators to finely define the permissibility of each operation for specific users, making it suitable for smaller organizations with manageable effort requirements. Conversely, RBAC governs operation permissions collectively, making ACL a favorable choice for organizations desiring fine-grained access control. For minor adjustments, such as permitting Erica to perform a restart operation, the admin only needs to modify the corresponding ACL table value from 0 to 1. If RBAC is employed, the admin must create a new role for this change, potentially leading to role redundancy and management challenges. If frequent fine-grained permission changes occur, RBAC may prove more cumbersome to handle.
+In contrast to the role-based access control (RBAC) mechanism, we posit that the access control list (ACL) mechanism provides greater flexibility for organizations with less pronounced hierarchies. The ACL allows administrators to finely define the permissibility of each operation for specific users, making it suitable for smaller organizations with manageable effort requirements. Conversely, RBAC governs operation permissions collectively, making ACL a favorable choice for organizations desiring fine-grained access control. For minor adjustments, such as permitting E to perform a restart operation, the admin only needs to modify the corresponding ACL table value from 0 to 1. If RBAC is employed, the admin must create a new role for this change, potentially leading to role redundancy and management challenges. If frequent fine-grained permission changes occur, RBAC may prove more cumbersome to handle.
 
 This advantage is particularly evident in systems with fewer users, such as startups with around 20 employees and limited resources. In such dynamic environments where employee roles are fluid, an ACL system offers superior adaptability.
 
