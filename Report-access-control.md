@@ -28,19 +28,19 @@ For the purpose of this AC lab, the goal is to achieve the following properties:
 <!-- > (max 2 pages)
 > This section should provide a short overview of the implementation of the access control lists and the motivation behind all non-trivial design choices. -->
 
-This paragraph offers a concise of the project solution using ACL mechanism. More precisely, by using the discretionary access control framework (DAC), an access control matrix summarises each user's permissions on each operation on the printing server. Moreover,
-the implementation uses an SQL table with primary key _username_ to reference all service users, and permissions to each resource are encoded with binary values (1=True or 0=False). Hereby the matrix overview:
+This paragraph offers a concise of the project solution using ACL mechanism. More precisely, by using the discretionary access control framework (DAC), an access control matrix summarises each user's permissions on each operation on the printing server. Moreover, the implementation uses an SQL database with primary key _username_ to reference all service users, and permissions to each resource are encoded with binary values (1=True or 0=False). Hereby the matrix overview:
+
 
 | username | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
 | -------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
 | A    | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
-| C  | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 0          | 0         |
 | B      | 0     | 0     | 0        | 1           | 1    | 1       | 1      | 1          | 1         |
+| C  | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 0          | 0         |
 | D    | 1     | 1     | 1        | 1           | 1    | 1       | 0      | 0          | 0         |
 | E    | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
 | F     | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
 | G   | 1     | 1     | 1        | 0           | 0    | 0       | 0      | 0          | 0         |
-|          |       |       |          | **Table-1** |      |         |        |            |           |
+|               |       |       |          | **Table-1** |      |         |        |            |           |
 
 This table is recorded in a database table and is stored together with the user table. It's important to note that there are no available APIs for adding user information to both the access control list table and the user table. To include any pertinent data, one must directly manipulate the database or use JDBC APIs that are already integrated within the system.
 
@@ -72,8 +72,8 @@ public boolean isMethodGranted(String username, String method) {
 public boolean isMethodGranted(String username, String method) {
     Set<String> roleSet = new HashSet<>();
     String userRoleByName = user.getUserRoleByName(username);
-    if (!userRoleByName.contains("&")) roleSet.add(userRoleByName);
-    else roleSet.addAll(Arrays.stream(userRoleByName.split("&")).collect(Collectors.toList()));
+    if (!userRoleByName.contains(",")) roleSet.add(userRoleByName);
+    else roleSet.addAll(Arrays.stream(userRoleByName.split(",")).collect(Collectors.toList()));
     boolean result = isMethodGrantedForRole(method, roleSet);
     if (result) logger.info(String.format("%s with role %s is allowed to %s", username, userRoleByName, method));
     else logger.info(String.format("%s with role %s is not allowed to %s", username, userRoleByName, method));
@@ -108,93 +108,72 @@ if (!accessControlModel.isMethodGranted(userName, methodName))
 
 In terms of our design choices, we chose to keep the access control list in the database because it is well-suited for scenarios involving simultaneous access. Since we already decided to store user data in the database, it made sense to centralize all critical information in a single location instead of spreading it out. Furthermore, we favored using Java interfaces to achieve a level of abstraction and encapsulation. This approach offers the flexibility to adapt to future modifications in access control methods, like incorporating role-based access control.
 
-In order to check for correct behaviour and implementation, the Client in _dtu.compute.client_ asserts the different (???)
-
-___________________________________________________________^^^ DONE SO FAR ^^^^__________________________________________
-
-
-To assess the functionality of the access control list mechanism, we introduced a corresponding integration test named `AccessControlListTest`. Notably, the database tables are devoid of information at program startup. During test execution, user information and associated permissions are inserted, and subsequently, these entries are cleared upon test completion. In a practical implementation, user credentials and the access control list ought to be contained in the database.
-
 ## Role Based Access Control
 
 <!-- > (max 3 pages including diagrams)
 > This section should document the results of the role mining process performed in in Task 2 and provide a short overview of the implementation of the role based access control mechanism implemented in Task 3 along with the motivation behind all non-trivial design choices. In particular, it must describe the syntax used to specify the RBAC policy. -->
 
-For the subsequent assignment, our objective involves recognizing the roles, outlining a hierarchical structure for these roles, and specifying permissions for each role in order to enact the prescribed access control strategy. The roles and their hierarchical arrangement are presented in Table 2, as well as depicted in Figure 1 and Figure 2.
+The Role-Based implementation of the access control mechanism is defined in the following table: each role type has different permissions on the service types provided by the printer and they are organized in the hierarchical structure shown in Figure 1.
 
-| username      | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
+| Role      | print | queue | topQueue | start       | stop | restart | status | readConfig | setConfig |
 | ------------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
-| manager       | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
-| ordinary_user | 1     | 1     | 0        | 0           | 0    | 0       | 0      | 0          | 0         |
-| janitor       | 0     | 0     | 0        | 1           | 1    | 0       | 0      | 0          | 0         |
-| power_user    | 1     | 1     | 1        | 0           | 0    | 1       | 0      | 0          | 0         |
-| service_tech  | 0     | 0     | 0        | 0           | 0    | 0       | 1      | 1          | 1         |
+| boss       | 1     | 1     | 1        | 1           | 1    | 1       | 1      | 1          | 1         |
+| user | 1     | 1     | 0        | 0           | 0    | 0       | 0      | 0          | 0         |
+| staff       | 0     | 0     | 0        | 1           | 1    | 0       | 0      | 0          | 0         |
+| root_user    | 1     | 1     | 1        | 0           | 0    | 1       | 0      | 0          | 0         |
+| tech  | 0     | 0     | 0        | 0           | 0    | 0       | 1      | 1          | 1         |
 |               |       |       |          | **Table-2** |      |         |        |            |           |
 
-| ![role-heirarchy.png](role-heirarchy.png) |
+| ![role-heirarchy.png](hierarchy.png) |
 | :---------------------------------------: |
 |       **Figure: 1 Role Heirarchy**        |
 
-| ![role-heirarchy-venn-diagram.png](role-heirarchy-venn-diagram.png) |
-| :-----------------------------------------------------------------: |
-|              **Figure: 2 Role Heirarchy Venn Diagram**              |
+In order to use Role-Based AC mechanism, the property `accessControlModel` contained in the file _util.Configuration.java_ is set to _roleBasedAccessControl_ . Then, the class `Role.java` in _dtu.compute.server.ac_ handles the implementation of `Model.java` interface. More precisely, it implements the two methods:
 
-The presence of five distinct roles is evident, with the table illustrating the permissions associated with each operation for every role. Similar to Table 1, the representation involves assigning 1 for true and 0 for false.
+- `isMethodGranted`
+- `isMethodGrantedForRole`
 
-To articulate the role-based access control (RBAC) policy, an additional column is introduced into the user table to store the user's designated role. If a user assumes multiple roles, these roles are linked with the "&" symbol, exemplified in Table 3.
+The former checks specific roles associated to the provided username. The latter checks role's permission relative to the specified printer service. Whenever a user has multiple roles, his final role is defined as a comma-separeted sequence of those, and service permissions are checked against each user associated role. Hereby we provide the full implementation: 
 
-The application of the specified role table for RBAC mechanism implementation begins with the creation of a new subclass termed RoleBasedControl, which implements the AccessControlModel interface, as outlined below:
+```
+public class Role implements Model {
+    @Override
+    public boolean isMethodGranted(String username, String method) {
+        Set<String> roleSet = new HashSet<>();
+        String userRoleByName = user.getUserRoleByName(username);
+        if (!userRoleByName.contains(",")) roleSet.add(userRoleByName);
+        else roleSet.addAll(Arrays.stream(userRoleByName.split(",")).collect(Collectors.toList()));
+        boolean result = isMethodGrantedForRole(method, roleSet);
+        if (result) logger.info(String.format("%s with role %s is allowed to %s", username, userRoleByName, method));
+        else logger.info(String.format("%s with role %s is not allowed to %s", username, userRoleByName, method));
+        return result;
+    }
+
+    private boolean isMethodGrantedForRole(String method, Set<String> roleSet) {
+        for (var i : roleSet) {
+            Map<String, Boolean> accessControlListByRole = accessControl.getAccessControlListByRole(i);
+            if (accessControlListByRole.get(method)) return true;
+        }
+
+        return false;
+    }
+}
+```
+
+With this implementation, the user's SQL database will no longer contain have the following structure:
 
 | **username** | **role**                        | **password_hash** |
 | ------------ | ------------------------------- | ----------------- |
-| A        | manager                         | xxx               |
-| C      | power_user                      | xxx               |
-| D        | ordinary_user                   | xxx               |
-| B          | janitor/service                 | xxx               |
-| F         | ordinary_user                   | xxx               |
-| G       | ordinary_user                   | xxx               |
-| E        | ordinary_user                   | xxx               |
-|              | Table 3: User Table with Roles: |                   |
+| A        | boss                         | _passwdHashA_               |
+| B          | staff,tech                 | _passwdHashB_               |
+| C      | root_user                      | _passwdHashC_               |
+| D        | user                   | _passwdHashD_               |
+| E        | user                   | _passwdHashE_               |
+| F         | user                   | _passwdHashF_               |
+| G       | user                   | _passwdHashG_               |
+|              | Table 3: User's Roles: |                   |
 
-```
-public class RoleBasedControl implements AccessControlModel{
-    @Override
-    public boolean isMethodGranted(String username, String method)
-    {
-        Set<String> roleSet = new HashSet<>();
-        String userRoleByName = userRepository.getUserRoleByName(username);
-        if (!userRoleByName.contains("&"))
-        roleSet.add(userRoleByName);
-        else
-        roleSet.addAll(Arrays.stream(userRoleByName.split("&")).toList());
-        return isMethodGrantedForRole(method, roleSet);
-    }
-}
-```
-
-The modified function, `isMethodGranted`, entails retrieving the roles linked to the user from the user table. Subsequently, the role string is disentangled using the "&" symbol, and the resulting components are stored in the role set. The ensuing method, `isMethodGrantedForRole`, examines whether the role linked to the user facilitates the execution of the specified method. The specifics of the `isMethodGrantedForRole` function are expounded upon as follows:
-
-```
-private boolean isMethodGrantedForRole(String method, Set<String> roleSet) {
-    for (var i : roleSet) {
-        Map<String, Boolean> accessControlListByRole = roleRepository.
-        getAccessControlListByRole(i);
-        if (accessControlListByRole.get(method))
-        return true;
-    }
-    return false;
-}
-
-```
-
-For the activation of the access control mechanism based on roles, an adjustment in the configuration file service.properties is requisite. The alteration pertains to the key accessControlModel, with the new value set as "roleBasedAccessControl," as exemplified below:
-
-```
-accessControlModel = roleBasedAccessControl
-```
-
-Similar to the approach adopted for the access control list, we opt to maintain the role table in the database to ensure uniformity in data storage. Additionally, we introduce a relevant integration test titled RoleBasedControlTest to validate the efficacy of the Role Based Access Control mechanism.
-
+--------------------------------------------------------------------------DONE SO FAR
 ## Evaluation
 
 <!-- > (max 4 pages)
@@ -205,13 +184,13 @@ Within this segment, we provide an account of the prototype that enforces the ac
 
 | **username** | **role**                | **password_hash** |
 | ------------ | ----------------------- | ----------------- |
-| A        | none                    | xxx               |
-| C      | none                    | xxx               |
-| D        | none                    | xxx               |
-| B          | none                    | xxx               |
-| F         | none                    | xxx               |
-| G       | none                    | xxx               |
-| E        | none                    | xxx               |
+| A        | none                    | _passwdHashA_               |
+| B          | none                    | _passwdHashB_               |
+| C      | none                    | _passwdHashC_               |
+| D        | none                    | _passwdHashD_               |
+| E        | none                    | _passwdHashE_               |
+| F         | none                    | _passwdHashF_               |
+| G       | none                    | _passwdHashG_               |
 |              | **Table 4: User Table** |                   |
 
 In this context, the role attribute for all users is configured as "none" since we are presently utilizing the access control list mechanism. The role attribute is irrelevant to our current scenario, and its assignment to "none" signifies that this attribute is not active. Additionally, the password hashes are excluded in this presentation.
@@ -263,56 +242,64 @@ For specific testing purposes, two integration tests have been defined. The firs
 The implementation of the access control list mechanism has successfully met the following requirements:
 
 • Development of the access control list mechanism prototype.
+
 • Specification of the access control list in an external file.
+
 • Incorporation of modifications to the access control list prototype to reflect changes in company personnel.
+
 • Introduction of a unit test named `AccessControlListTest` to assess the functionality of the access control list mechanism, ensuring effective user access control.
+
 • Integration of a unit test named `StaffChangeOnAccessControlListTest` to simulate shifts in company staff and validate the adaptive nature of the access control list mechanism.
 
 Subsequently, we transition to role-based access control (RBAC). Two pertinent tables associated with RBAC include the user table and the roles table, presented in Table 8 and Table 9.
 
 | **username** | **role**                           | **password_hash** |
 | ------------ | ---------------------------------- | ----------------- |
-| A        | manager                            | xxx               |
-| C      | power_user                         | xxx               |
-| B          | janitor&service_tech               | xxx               |
-| D        | ordinary_user                      | xxx               |
-| E        | ordinary_user                      | xxx               |
-| F         | ordinary_user                      | xxx               |
-| G       | ordinary_user                      | xxx               |
+| A        | boss                            | xxx               |
+| C      | root_user                         | xxx               |
+| B          | staff,tech               | xxx               |
+| D        | user                      | xxx               |
+| E        | user                      | xxx               |
+| F         | user                      | xxx               |
+| G       | user                      | xxx               |
 |              | **Table 8: User Table with roles** |
 |              |
 
 | username      | print | queue | topQueue | start | stop                        | restart | status | readConfig | setConfig |
 | ------------- | ----- | ----- | -------- | ----- | --------------------------- | ------- | ------ | ---------- | --------- |
-| manager       | 1     | 1     | 1        | 1     | 1                           | 1       | 1      | 1          | 1         |
-| janitor       | 1     | 1     | 1        | 0     | 0                           | 1       | 0      | 0          | 0         |
-| power_user    | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
+| boss       | 1     | 1     | 1        | 1     | 1                           | 1       | 1      | 1          | 1         |
+| staff       | 1     | 1     | 1        | 0     | 0                           | 1       | 0      | 0          | 0         |
+| root_user    | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
 | service_tech  | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
-| ordinary_user | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
+| user | 1     | 1     | 0        | 0     | 0                           | 0       | 0      | 0          | 0         |
 |               |       |       |          |       | **Table 9: The role table** |
 |               |       |       |          |
 
-In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still excluded. To accommodate changes in the company's organizational structure, the initial step involves removing B from the user table. Subsequently, the role of G is adjusted from "ordinary_user" to "ordinary_user&service_tech," with different roles connected using "&."For the two recently included employees, I is assigned the role of power_user, while H is designated as an ordinary_user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
+In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still excluded. To accommodate changes in the company's organizational structure, the initial step involves removing B from the user table. Subsequently, the role of G is adjusted from "user" to "user,service_tech," with different roles connected using ",."For the two recently included employees, I is assigned the role of root_user, while H is designated as an user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
 
 | **username** | **role**                         | **password_hash** |
 | ------------ | -------------------------------- | ----------------- |
-| A        | manager                          | xxx               |
-| C      | power_user                       | xxx               |
-| D        | ordinary_user                    | xxx               |
-| F         | ordinary_user                    | xxx               |
-| E        | ordinary_user                    | xxx               |
-| G       | ordinary_user&service_tech       | xxx               |
-| H        | ordinary_user                    | xxx               |
-| I          | power_user                       | xxx               |
+| A        | boss                          | xxx               |
+| C      | root_user                       | xxx               |
+| D        | user                    | xxx               |
+| F         | user                    | xxx               |
+| E        | user                    | xxx               |
+| G       | user,service_tech       | xxx               |
+| H        | user                    | xxx               |
+| I          | root_user                       | xxx               |
 |              | **Table 10: User Table updated** |
 |              |
 
 The implementation of the role-based access control mechanism has successfully met the following requirements:
 
 • Development of the role-based access control mechanism prototype.
+
 • Specification of the role hierarchy in an external file.
+
 • Incorporation of modifications to the role-based access control prototypes to reflect changes in company personnel.
+
 • Introduction of an integration test named `RoleBasedControlTest` to assess the functionality of the role-based access control mechanism, ensuring effective user access control.
+
 • Implementation of an integration test named `StaffChangedOnRoleBasedControlTest` to simulate shifts in company staff and validate the adaptive nature of the role-based access control mechanism.
 
 However, both access control systems fall short in addressing two major requirements. Firstly, the absence of a registration API necessitates manual insertion of all users into the database. For testing purposes, users are initially inserted through the database API, after which the access control mechanism is tested on them. Secondly, there is a lack of APIs to facilitate changes in user permissions, which can only be achieved through direct manipulation of the database. These limitations contribute to the application's complexity in user management. Additionally, the absence of a proper UI must be acknowledged as a drawback, as it is crucial for the practical usability of the application.
