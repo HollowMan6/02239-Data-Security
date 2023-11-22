@@ -27,7 +27,7 @@ For the purpose of this AC lab, the goal is to achieve the following properties:
 <!-- > (max 2 pages)
 > This section should provide a short overview of the implementation of the access control lists and the motivation behind all non-trivial design choices. -->
 
-This paragraph offers a concise of the project solution using ACL mechanism. More precisely, by using the discretionary access control framework (DAC), an access control matrix summarises each user's permissions on each operation on the printing server. Moreover, the implementation uses an SQL database with primary key _username_ to reference all service users, and permissions to each resource are encoded with binary values (1=True or 0=False). Hereby the matrix overview:
+This paragraph presents a concise solution using ACL mechanism. More precisely, by using the discretionary access control framework (DAC), an access control matrix summarises each user's permissions on each operation on the printing server. Moreover, the implementation uses an SQL database with primary key _username_ to reference all service users, and permissions to each resource are encoded with binary values (1=True or 0=False). Here is the overview of the matrix:
 
 Table 1: Access control matrix for each user
 | username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
@@ -111,7 +111,7 @@ In terms of our design choices, we chose to keep the access control list in the 
 ## Role Based Access Control
 
 <!-- > (max 3 pages including diagrams)
-> This section should document the results of the role mining process performed in in Task 2 and provide a short overview of the implementation of the role based access control mechanism implemented in Task 3 along with the motivation behind all non-trivial design choices. In particular, it must describe the syntax used to specify the RBAC policy. -->
+> This section should document the results of the role mining process performed  in Task 2 and provide a short overview of the implementation of the role based access control mechanism implemented in Task 3 along with the motivation behind all non-trivial design choices. In particular, it must describe the syntax used to specify the RBAC policy. -->
 
 The Role-Based implementation of the access control mechanism is defined in the following Table 2: each role type has different permissions on the service types provided by the printer and they are organized in the hierarchical structure shown in Figure 1.
 
@@ -128,7 +128,7 @@ Table 2: Access control matrix for each role
 | :----------------------------------: |
 |     **Figure 1: Role Heirarchy**     |
 
-In order to use Role-Based AC mechanism, the property `accessControlModel` contained in the file _util.Configuration.java_ is set to _roleBasedAccessControl_ . Then, the class `Role.java` in _dtu.compute.server.ac_ handles the implementation of `Model.java` interface. More precisely, it implements the two methods:
+In order to use Role-Based AC mechanism, the property `accessControlModel` contained in the file _util.Configuration.java_ is set to _roleBasedAccessControl_ . Then, the class `Role.java` in _dtu.compute.server.ac_ handles the implementation of the Model.java interface. More precisely, it implements the two methods:
 
 - `isMethodGranted`
 - `isMethodGrantedForRole`
@@ -181,7 +181,7 @@ The evaluation should provide a simple summary of which of the requirements are 
 
 Within this segment, we provide an account of the prototype that enforces the access control policies outlined in this task. Commencing with the discussion on access control list (ACL), two tables are pertinent to ACL, specifically the user table and the access control list table. The existing contents of these tables before any modifications are presented below:
 
-The SQL database storing users' accounts should now reflect the changes to handle both ACL and Role-Based AC mechanisms. For such reason we designed its new structure by adding the role field in the users table, with initial value set as _None_:
+The SQL database storing users' accounts should now reflect the changes to handle both ACL and Role-Based AC mechanisms. For this reason, we designed its new structure by adding the role field in the users table, with the initial value set as _None_:
 
 Table 4: User table
 | **username** | **password_hash** | **role** |
@@ -309,7 +309,7 @@ Both ACL and RBAC effectively handle changes in organizational structure, such a
 <!-- > (max 1 page)
 > The conclusions should summarize the problems addressed in the report and clearly identify which of the requirements are satisfied and which are not (a summary of Section 4). The conclusions may also include a brief outline of future work. -->
 
-In this lab exercise focused on access control, we integrated access control mechanisms into the system previously developed in the authentication lab. The implemented access control mechanisms include the access control list (ACL) and role-based access control (RBAC). Initially, we developed prototypes for both mechanisms and eventually refined them to adapt to actual roles in company. Figure 1 presents a clearly defined role hierarchy. We also developed the corresponding client in those 2 different access control mechanisms with the test cases.
+In this lab exercise focused on access control, we integrated access control mechanisms into the system previously developed in the authentication lab. The implemented access control mechanisms include the access control list (ACL) and role-based access control (RBAC).Initially, we developed prototypes for both mechanisms and eventually refined them to adapt to the actual roles in the company.. Figure 1 presents a clearly defined role hierarchy. We also developed the corresponding client in those 2 different access control mechanisms with the test cases.
 
 Additionally, we fulfilled the requirement of storing the access control policy securly in external media. Similar to the previous lab, we stored relevant information in the database, aligning with real-world secure system practices. A configuration item was defined to facilitate the switch between the two access control mechanisms, covering all outlined requirements in Section 1 Introduction.
 
