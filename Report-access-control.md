@@ -229,6 +229,23 @@ The implementation of the role-based access control mechanism has successfully m
 
 However, both of the above mechanisms fall short in addressing two issues. Firstly, there is no registration API so users are inserted manually into the database, after which both of the clients are tested on them. Secondly, there is no proper UI for the registration of users, which hampers the practical usability of our application.
 
+### Run the project
+
+1. Run `docker compose up` to start a PostgreSQL database instance locally. All database schemas and initial role data are already located in `create_tables.sql` and will be executed automatically once the database is running.
+2. Open the project in IntelliJ IDEA, all the configurations to run the project are already defined in `build.gradle` as tasks.
+
+#### Run client based on ACL
+1. Replace the value of string `accessControlModel` with `accessControlList` at `src/main/java/dtu/compute/util/Configuration.java`, so that the server understand that client will use Access Control List for authentication.
+2. Start the server by running the `server` task defined in `build.gradle`.
+3. After server is fully started, run the `clientACL` task to start the client. It will finish successfully if it passes all the tests.
+
+#### Run client based on RBAC
+1. Replace the value of string `accessControlModel` with `roleBasedAccessControl` at `src/main/java/dtu/compute/util/Configuration.java`, so that the server understand that client will use Role Based Access Control for authentication.
+2. Start the server by running the `server` task defined in `build.gradle`.
+3. After server is fully started, run the `clientRole` task to start the client. It will finish successfully if it passes all the tests.
+
+You can find all the server logs under `logs/auth.log`.
+
 ## Discussion
 
 <!-- > (max 2 page)
