@@ -18,7 +18,7 @@ The two primary access control models are Access Control Lists (ACL) and Role-Ba
 For the purpose of this AC lab, the goal is to achieve the following properties:
 
 - Integrate both ACL and RBAC methodologies, making it possible to switch between the two.
-- Indipendent management of ACL parameters with respect to software application.
+- Independent management of ACL parameters with respect to the software application.
 - Apply changes in organizational roles and responsibilities, ensuring ongoing relevance and effectiveness.
 - Test software functionalities and correctness.
 
@@ -33,7 +33,7 @@ This paragraph presents a concise solution using the ACL mechanism. More precise
 | :----------------------------------: |
 |     ![Table 1](pj2-images/table1.png)     |
 
-We use the `create_table.sql` file in order to create the above table and the user's table. Furthermore, the data is added to these tables manually due to the absence of any available APIs Moreover, the Java interface  named  `Model` located in _dtu.compute.server.ac_ implements the access control mechanism. Our model interface is defined as follows:
+We use the `create_table.sql` file in order to create the above table and the user's table. Furthermore, the data is added to these tables manually due to the absence of any available APIs Moreover, the Java interface `Model` located in _dtu.compute.server.ac_ implements the access control mechanism. Our model interface is defined as follows:
 
 ```
 public interface Model {
@@ -120,7 +120,7 @@ In order to use the Role-Based AC mechanism, the property `accessControlModel` c
 - `isMethodGranted`
 - `isMethodGrantedForRole`
 
-The former checks whether a specific permission is granted to the specified role. The latter performs the same check but on sets of roles associated to the same user. Whenever a user has multiple roles, such set is defined as a comma-separated sequence of roles, and service permissions are checked against each one of them. Hereby we provide the implementation:
+The former checks whether specific permission is granted to the specified role. The latter performs the same check but on sets of roles associated with the same user. Whenever a user has multiple roles, such a set is defined as a comma-separated sequence of roles, and service permissions are checked against each one of them. Hereby we provide the implementation:
 
 ```
 public class Role implements Model {
@@ -147,7 +147,7 @@ public class Role implements Model {
 }
 ```
 
-Finally, the users PostgreSQL database no longer contain ACL permissions, rather the username, user's password and role as shown in the following structure:
+Finally, the PostgreSQL database no longer contains ACL permissions, rather the username, user's password and role as shown in the following structure:
 
 | **Table 3: User's roles** |
 | :----------------------------------: |
@@ -160,7 +160,7 @@ Finally, the users PostgreSQL database no longer contain ACL permissions, rather
 > This section should document that the prototype enforces the access control policies defined in this assignment; both ACL and RBAC and both before and after the changes.
 The evaluation should provide a simple summary of which of the requirements are satisfied and which are not. -->
 
-This section provides an overview of our designed prototypes for AC policies. For testing, two specific clients have been designed. The client for the ACL case is named  `ClientACL.java`, and can be found in _dtu.compute.client_. It tests the ACL functionalities and implements all the table changes after company organisational restructure. The second client in the same folder, named `ClientRole.java`, handles the same changes on the Role-Based implementation after filling up the role column in the user table. This test also verifies compliance with updated policy settings.
+This section provides an overview of our designed prototypes for AC policies. For testing, two specific clients have been designed. The client for the ACL case is named  `ClientACL.java`, and can be found in _dtu.compute.client_. It tests the ACL functionalities and implements all the table changes after the company's organisational restructuring. The second client in the same folder, named `ClientRole.java`, handles the same changes on the Role-Based implementation after filling up the role column in the user table. This test also verifies compliance with updated policy settings.
 
 A first comment goes to the PostgreSQL database. In order to be able to handle both ACL and Role-Based AC mechanisms without data replication, we add the role field in the users table, with the initial value set as _None_. Its new structure is shown in Table 4:
 
@@ -177,7 +177,7 @@ In case of the ACL implementation, the user table solely handles user authentica
 |    ![Table 5](pj2-images/table1.png)      |
 
 
-After the organisational changes though, the content of both these tables are updated to reflect the recent shifts in the company's staff structure. Initially, B's records are deleted from both. Then, with G receiving as the new technitian, G is granted the permissios to _status()_ _readConfig()_ and _setConfig()_ in the ACL.  Then H and I, the new employees, are inserted in the users table as simple users. The employee I is then given also permissions as root_user, meaning she is now also able to use topQueue() and restart(). After the changes, the updated tables are shown below:
+After the organisational changes though, the content of both these tables is updated to reflect the recent shifts in the company's staff structure. Initially, B's records are deleted from both. Then, with G receiving as the new technician, G is granted the permissions to _status()_ _readConfig()_ and _setConfig()_ in the ACL.  Then H and I, the new employees, are inserted in the users table as simple users. The employee I is then given also permissions as root_user, meaning she is now also able to use topQueue() and restart(). After the changes, the updated tables are shown below:
 
 
 | **Table 6: User table updated** |
@@ -192,11 +192,11 @@ Implementation of the ACL mechanism has helped us achieve the requirements state
 
 - We set ACL requirements according to the given assignment description on the given users, and then model the AC mechanism using the client.
 
-- ACL is stored in a separate environment from the application, precisely in a PostreSQL database.
+- ACL is stored in a separate environment from the application, precisely in a PostgreSQL database.
 
-- We include the modifications to the ACL so that they will include the changes of the new company structure.
+- We include the modifications to the ACL so that they will include the changes to the new company structure.
 
-- Addition of `ClientACL.java` to simulate and validate the test cases in such a way that it tests the ACL functionalities and implements all the table changes for B,G, H and I.
+- Addition of `ClientACL.java` to simulate and validate the test cases in such a way that it tests the ACL functionalities and implements all the table changes for B, G, H and I.
 
 ### Role-Based evaluation
 
@@ -211,7 +211,7 @@ Thanks to its flexible design, the ACL table can now be used to assign specific 
 |     ![Table 9](pj2-images/table9.png)     |
 
 
-After initially populating the the above tables accoring to assignment description, company changes are reflected by the following operations: B is removed from the users table; the role of G is adjusted from "user" to "user,tech" meaning a role-set of 2 roles. As for the new employees, I is inserted into the users table and assigned the role of root_user, while H is designated as a user. As anticipated, there won't be any changes done to the roles permissions table. Table 10 shows the users table after the changes:
+After initially populating the above tables according to the assignment description, company changes are reflected by the following operations: B is removed from the users table; the role of G is adjusted from "user" to "user,tech" meaning a role-set of 2 roles. As for the new employees, I is inserted into the users table and assigned the role of root_user, while H is designated as a user. As anticipated, there won't be any changes done to the roles permissions table. Table 10 shows the users table after the changes:
 
 | **Table 10: Updated user table** |
 | :----------------------------------: |
@@ -221,13 +221,13 @@ The implementation of the role-based access control mechanism has successfully m
 
 - Development of the role-based access control mechanism prototype that simulates the running of role-based access control requirements for our users. This AC mechanism is also dynamically handled by the users table.
 
-- Roles hierarchy are store in the database as an access control matrix using their respective permissions.
+- Roles hierarchy are stored in the database as an access control matrix using their respective permissions.
 
 - Incorporation of modifications to the role-based access control prototypes to reflect changes in company personnel.
 
 - Addition of `ClientRole.java` to test the Role-Based implementation and company changes, by handling the updated policy settings for users B, G, H, I.
 
-However, for practical purposes, our design choices fall short in two aspects. Firstly, there is no persistence in the database, meaning our implementation inserts users manually into the database during every initialization, after which both of the clients are tested. Secondly, there is no proper UI for the registration of users, which makes our application more difficult to navigate for not-expert users.
+However, for practical purposes, our design choices fall short in two aspects. Firstly, there is no persistence in the database, meaning our implementation inserts users manually into the database during every initialization, after which both of the clients are tested. Secondly, there is no proper UI for the registration of users, which makes our application more difficult to navigate for non-expert users.
 
 ### Run the project
 
@@ -235,14 +235,14 @@ However, for practical purposes, our design choices fall short in two aspects. F
 2. Open the project in IntelliJ IDEA, all the configurations to run the project are already defined in `build.gradle` as tasks.
 
 #### Run client based on ACL
-1. Replace the value of string `accessControlModel` with `accessControlList` at `src/main/java/dtu/compute/util/Configuration.java`, so that the server understand that client will use Access Control List for authentication.
+1. Replace the value of string `accessControlModel` with `accessControlList` at `src/main/java/dtu/compute/util/Configuration.java`, so that the server understands that the client will use Access Control List for authentication.
 2. Start the server by running the `server` task defined in `build.gradle`.
-3. After server is fully started, run the `clientACL` task to start the client. It will finish successfully if it passes all the tests.
+3. After the server is fully started, run the `clientACL` task to start the client. It will finish successfully if it passes all the tests.
 
 #### Run client based on RBAC
-1. Replace the value of string `accessControlModel` with `roleBasedAccessControl` at `src/main/java/dtu/compute/util/Configuration.java`, so that the server understand that client will use Role Based Access Control for authentication.
+1. Replace the value of string `accessControlModel` with `roleBasedAccessControl` at `src/main/java/dtu/compute/util/Configuration.java`, so that the server understands that the client will use Role Based Access Control for authentication.
 2. Start the server by running the `server` task defined in `build.gradle`.
-3. After server is fully started, run the `clientRole` task to start the client. It will finish successfully if it passes all the tests.
+3. After the server is fully started, run the `clientRole` task to start the client. It will finish successfully if it passes all the tests.
 
 You can find all the server logs under `logs/auth.log`.
 
