@@ -30,15 +30,7 @@ For the purpose of this AC lab, the goal is to achieve the following properties:
 This paragraph presents a concise solution using ACL mechanism. More precisely, by using the discretionary access control framework (DAC), an access control matrix summarises each user's permissions on each operation on the printing server. Moreover, the implementation uses an SQL database with primary key _username_ to reference all service users, and permissions to each resource are encoded with binary values (1=True or 0=False). Here is the overview of the matrix:
 
 Table 1: Access control matrix for each user
-| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| -------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
-| A | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
-| B | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 |
-| C | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 |
-| D | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 |
-| E | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
-| F | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
-| G | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+![Table 1](pj2-images/table1.png)
 
 This table is recorded in a database table and is stored together with the user table. It's important to note that there are no available APIs for adding user information to both the access control list table and the user table. To include any pertinent data, one must directly manipulate the database or use JDBC APIs that are already integrated within the system.
 
@@ -116,15 +108,9 @@ In terms of our design choices, we chose to keep the access control list in the 
 The Role-Based implementation of the access control mechanism is defined in the following Table 2: each role type has different permissions on the service types provided by the printer and they are organized in the hierarchical structure shown in Figure 1.
 
 Table 2: Access control matrix for each role
-| Role | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| ------------- | ----- | ----- | -------- | ----------- | ---- | ------- | ------ | ---------- | --------- |
-| boss | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
-| user | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| staff | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0 |
-| root_user | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
-| tech | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 |
+![Table 2](pj2-images/table2.png)
 
-| ![role-heirarchy.png](hierarchy.png) |
+| ![heirarchy.png](hierarchy.png) |
 | :----------------------------------: |
 |     **Figure 1: Role Heirarchy**     |
 
@@ -163,15 +149,7 @@ public class Role implements Model {
 Finally, the user's SQL database will no longer contain ACL permissions, rather the username, role and password hashes as shown in the following structure:
 
 Table 3: User's roles
-| **username** | **password_hash** | **role** |
-| ------------ | ------------------------------- | ----------------- |
-| A | _passwdHashA_ | boss |
-| B | _passwdHashB_ | staff,tech |
-| C | _passwdHashC_ | root_user |
-| D | _passwdHashD_ | user |
-| E | _passwdHashE_ | user |
-| F | _passwdHashF_ | user |
-| G | _passwdHashG_ | user |
+![Table 3](pj2-images/table3.png)
 
 ## Evaluation
 
@@ -184,56 +162,22 @@ Within this segment, we provide an account of the prototype that enforces the ac
 The SQL database storing users' accounts should now reflect the changes to handle both ACL and Role-Based AC mechanisms. For this reason, we designed its new structure by adding the role field in the users table, with the initial value set as _None_:
 
 Table 4: User table
-| **username** | **password_hash** | **role** |
-| ------------ | ----------------- | ----------------------- |
-| A | _passwdHashA_ | none |
-| B | _passwdHashB_ | none |
-| C | _passwdHashC_ | none |
-| D | _passwdHashD_ | none |
-| E | _passwdHashE_ | none |
-| F | _passwdHashF_ | none |
-| G | _passwdHashG_ | none |
+![Table 4](pj2-images/table4.png)
 
 The user table, in this instance, solely handles user authentication. Specific access control policies are stored in the access control list table, as illustrated in Table 5.
 
 Table 5: Access Control List
-| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| -------- | ----- | ----- | -------- | ----- | -------------------------------- | ------- | ------ | ---------- | --------- |
-| A | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
-| B | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 |
-| C | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
-| D | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| E | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| F | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| G | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+![Table 5](pj2-images/table5.png)
 
 Subsequent to these changes, the content of both the user table and the access control list table is updated to reflect the recent shifts in the company's staff structure. Initially, B's records are deleted from both tables. Then, with G taking over some of B's duties and stepping into the role of a service technician, G is granted the appropriate permissions in the access control list. The process for adding new employees (such as H) to both the user table and the access control list is straightforward, ensuring their permissions are accurately represented. After these organizational adjustments, the updated versions of the tables are presented in Table 6 and Table 7.
 
 For testing, two specific clients have been designed. The client for the ACL case is named `ClientACL.java`, and can be found in _dtu.compute.client_. It tests the ACL functionalities and implements the all the table changes for B,G and H. The second client in the same folder, named `ClientRole.java`, handles the same changes on the Role-Based implementation after filling up the role column in the users table. This test aims to verify the access control list's compliance with updated policy settings.
 
 Table 6: User table updated
-| **username** | **password_hash** | **role** |
-| ------------ | ----------------- | ------------------------------- |
-| A | _passwdHashA_ | none |
-| C | _passwdHashC_ | none |
-| D | _passwdHashD_ | none |
-| E | _passwdHashE_ | none |
-| F | _passwdHashF_ | none |
-| G | _passwdHashG_ | none |
-| H | _passwdHashH_ | none |
-| I | _passwdHashI_ | none |
+![Table 6](pj2-images/table6.png)
 
 Table 7: Access Control List updated
-| username | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| -------- | ----- | ----- | -------- | ----- | ---------------------------------------- | ------- | ------ | ---------- | --------- |
-| A | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
-| C | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
-| D | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| E | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| F | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| G | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 |
-| H | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| I | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
+![Table 7](pj2-images/table7.png)
 
 The implementation of the access control list mechanism has successfully met the following requirements:
 
@@ -248,38 +192,15 @@ The implementation of the access control list mechanism has successfully met the
 Subsequently, we transition to role-based access control (RBAC). Two pertinent tables associated with RBAC include the user table and the roles table, presented in Table 8 and Table 9.
 
 Table 8: User table with roles
-| **username** | **password_hash** | **role** |
-| ------------ | ----------------- | ---------------------------------- |
-| A | _passwdHashA_ | boss |
-| B | _passwdHashB_ | staff,tech |
-| C | _passwdHashC_ | root_user |
-| D | _passwdHashD_ | user |
-| E | _passwdHashE_ | user |
-| F | _passwdHashF_ | user |
-| G | _passwdHashG_ | user |
+![Table 8](pj2-images/table8.png)
 
 Table 9: The role table
-| role | print | queue | topQueue | start | stop | restart | status | readConfig | setConfig |
-| ------------- | ----- | ----- | -------- | ----- | --------------------------- | ------- | ------ | ---------- | --------- |
-| boss | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
-| staff | 1 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |
-| tech | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| root_user | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| user | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+![Table 9](pj2-images/table9.png)
 
 In contrast to the previous table, roles are introduced for users in this setup, with the password_hash field still included. To accommodate changes in the company's organizational structure, the initial step involves removing B from the user table. Subsequently, the role of G is adjusted from "user" to "user,tech," with different roles connected using ",".For the two recently included employees, I is assigned the role of root_user, while H is designated as a user. It's worth noting that the role table remains unchanged, as no alterations to roles have occurred. The updated user table is presented in Table 10.
 
 Table 10: User table updated
-| **username** | **password_hash** | **role** |
-| ------------ | ----------------- | -------------------------------- |
-| A | _passwdHashA_ | boss |
-| C | _passwdHashC_ | root_user |
-| D | _passwdHashD_ | user |
-| E | _passwdHashE_ | user |
-| F | _passwdHashF_ | user |
-| G | _passwdHashG_ | user,tech |
-| H | _passwdHashH_ | user |
-| I | _passwdHashI_ | root_user |
+![Table 10](pj2-images/table10.png)
 
 The implementation of the role-based access control mechanism has successfully met the following requirements:
 
