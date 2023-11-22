@@ -18,7 +18,7 @@ The two primary access control models are Access Control Lists (ACL) and Role-Ba
 For the purpose of this AC lab, the goal is to achieve the following properties:
 
 - Integrate both ACL and RBAC methodologies, making it possible to switch between the two.
-- External management of ACL parameters.
+- Indipendent management of ACL parameters with respect to software application.
 - Apply changes in organizational roles and responsibilities, ensuring ongoing relevance and effectiveness.
 - Test software functionalities and correctness.
 
@@ -33,9 +33,7 @@ This paragraph presents a concise solution using the ACL mechanism. More precise
 | :----------------------------------: |
 |     ![Table 1](pj2-images/table1.png)     |
 
-We use the `create_table.sql` file in order to create the above table and the user's table. Furthermore, the data is added to these tables manually due to the absence of any available APIs.  To include any pertinent data, one must directly manipulate the database or use JDBC APIs that are already integrated within the system.
-
-A Java interface  named  `Model` is located in _dtu.compute.server.ac_ implements the access control mechanism. Our model interface is defined as follows:
+We use the `create_table.sql` file in order to create the above table and the user's table. Furthermore, the data is added to these tables manually due to the absence of any available APIs Moreover, the Java interface  named  `Model` located in _dtu.compute.server.ac_ implements the access control mechanism. Our model interface is defined as follows:
 
 ```
 public interface Model {
@@ -90,7 +88,7 @@ else
     logger.error("Invalid Configuration");
 ```
 
-For every method within the printing system, the AC verification is implemented after checking user authentication. Permissions are checked through the specific implementation of `isMethodGranted`, and after retreiving methodName and userName, if the permission is not granted, the client will display the NOT_ALLOWED error message:
+For every method within the printing system, the AC verification is implemented after checking user authentication. Permissions are checked through the specific implementation of `isMethodGranted` by providing username and method, then if the permission is not granted, the client will display a NOT_ALLOWED error message:
 
 ```
 String methodName = new Object() {}.getClass().getEnclosingMethod().getName();
@@ -99,14 +97,14 @@ if (!accessControlModel.isMethodGranted(userName, methodName))
 	return userName + NOT_ALLOWED + methodName;
 ```
 
-The access control list will be kept in the database ensuring simultaneous access. Moreover, all the critical information is centralized because the user data is inside the database. The reason for this is that all of the data is stored inside the database. Furthermore, we favored using Java interfaces to achieve a level of abstraction and encapsulation. This approach offers the flexibility to adapt to future modifications in access control methods, like incorporating role-based access control.
+The access control list will be kept in the database ensuring simultaneous access. Moreover, all the critical information is centralized outside the application, since all user's data is inside the database. Furthermore, we favored using Java interfaces to achieve a level of abstraction and encapsulation. This approach offers the flexibility to adapt to future modifications in access control methods, like incorporating role-based access control.
 
 ## Role Based Access Control
 
 <!-- > (max 3 pages including diagrams)
 > This section should document the results of the role mining process performed  in Task 2 and provide a short overview of the implementation of the role based access control mechanism implemented in Task 3 along with the motivation behind all non-trivial design choices. In particular, it must describe the syntax used to specify the RBAC policy. -->
 
-The Role-Based implementation of the access control mechanism is defined in the following Table 2: each role type has different permissions on the service types provided by the printer and they are organized in the hierarchical structure shown in Figure 1.
+The Role-Based implementation of the access control mechanism is defined in Table 2. Each role has different service permissions and they are organized in the hierarchical structure shown in Figure 1.
 
 
 | **Table 2: Access control matrix for each role** |
@@ -117,12 +115,12 @@ The Role-Based implementation of the access control mechanism is defined in the 
 | :----------------------------------: |
 |     **Figure 1: Role Hierarchy**     |
 
-In order to use the Role-Based AC mechanism, the property `accessControlModel` is contained in the file _util.Configuration.java_ is set to _roleBasedAccessControl_. Then, the class `Role.java` in _dtu.compute.server.ac_ handles the implementation of the Model.java interface. More precisely, it implements the two methods:
+In order to use the Role-Based AC mechanism, the property `accessControlModel` contained in the file _util.Configuration.java_ is set to _roleBasedAccessControl_. Then, the class `Role.java` in _dtu.compute.server.ac_ handles the implementation of the Model.java interface. More precisely, it implements the two methods:
 
 - `isMethodGranted`
 - `isMethodGrantedForRole`
 
-The former checks specific roles associated with the provided username. The latter checks the role's permission relative to the specified printer service. Whenever a user has multiple roles, his final role is defined as a comma-separated sequence of those, and service permissions are checked against each user-associated role. Hereby we provide the full implementation:
+The former checks whether a specific permission is granted to the specified role. The latter performs the same check but on sets of roles associated to the same user. Whenever a user has multiple roles, such set is defined as a comma-separated sequence of roles, and service permissions are checked against each one of them. Hereby we provide the implementation:
 
 ```
 public class Role implements Model {
@@ -149,7 +147,7 @@ public class Role implements Model {
 }
 ```
 
-Finally, the user's PostgreSQL database will no longer contain ACL permissions, but rather the username, role and password hashes as shown in the following structure:
+Finally, the users PostgreSQL database no longer contain ACL permissions, rather the username, user's password and role as shown in the following structure:
 
 | **Table 3: User's roles** |
 | :----------------------------------: |
@@ -162,25 +160,25 @@ Finally, the user's PostgreSQL database will no longer contain ACL permissions, 
 > This section should document that the prototype enforces the access control policies defined in this assignment; both ACL and RBAC and both before and after the changes.
 The evaluation should provide a simple summary of which of the requirements are satisfied and which are not. -->
 
-This section provides an overview of our designed prototypes for ACL policies. The tables that are related to ACL are the user and access control table. Prior to any modifications, the tables' content are then given in the following sections:
+This section provides an overview of our designed prototypes for AC policies. For testing, two specific clients have been designed. The client for the ACL case is named  `ClientACL.java`, and can be found in _dtu.compute.client_. It tests the ACL functionalities and implements all the table changes after company organisational restructure. The second client in the same folder, named `ClientRole.java`, handles the same changes on the Role-Based implementation after filling up the role column in the user table. This test also verifies compliance with updated policy settings.
 
-The PostgreSQL database storing users' accounts should now reflect the changes to handle both ACL and Role-Based AC mechanisms. For this reason, we designed its new structure by adding the role field in the users table, with the initial value set as _None_:
+A first comment goes to the PostgreSQL database. In order to be able to handle both ACL and Role-Based AC mechanisms without data replication, we add the role field in the users table, with the initial value set as _None_. Its new structure is shown in Table 4:
 
 | **Table 4: User table** |
 | :----------------------------------: |
 |     ![Table 4](pj2-images/table4.png)     |
 
+### ACL
 
-The user table, in this instance, solely handles user authentication. Specific access control policies are stored in the access control list table, as illustrated in Table 5.
+In case of the ACL implementation, the user table solely handles user authentication, since specific access control policies are stored in the access control list table, as illustrated in Table 5.
 
 | **Table 5: Access Control List** |
 | :----------------------------------: |
-|    ![Table 5](pj2-images/table5.png)      |
+|    ![Table 5](pj2-images/table1.png)      |
 
 
-Subsequent to these changes, the content of both the user table and the access control list table is updated to reflect the recent shifts in the company's staff structure. Initially, B's records are deleted from both tables. Then, with G taking over some of B's duties and stepping into the role of an operation technician, G is granted the appropriate permissions in the access control list. In order to ensure that the permission of new employees, such as H, is accurately represented their insertion in the user table is pretty straightforward. After the changes, the new tables with the updated values (Table 6 and Table 7) are shown below:
+After the organisational changes though, the content of both these tables are updated to reflect the recent shifts in the company's staff structure. Initially, B's records are deleted from both. Then, with G receiving as the new technitian, G is granted the permissios to _status()_ _readConfig()_ and _setConfig()_ in the ACL.  Then H and I, the new employees, are inserted in the users table as simple users. The employee I is then given also permissions as root_user, meaning she is now also able to use topQueue() and restart(). After the changes, the updated tables are shown below:
 
-For testing, two specific clients have been designed. The client for the ACL case is named  `ClientACL.java`, and can be found in _dtu.compute.client_. It tests the ACL functionalities and implements all the table changes for B, G, and H. The second client in the same folder, named `ClientRole.java`, handles the same changes on the Role-Based implementation after filling up the role column in the user table. This test aims to verify the access control list's compliance with updated policy settings.
 
 | **Table 6: User table updated** |
 | :----------------------------------: |
@@ -192,26 +190,28 @@ For testing, two specific clients have been designed. The client for the ACL cas
 
 Implementation of the ACL mechanism has helped us achieve the requirements stated below:    
 
-- We run ACL requirements according to the given assignment description on the set of users and then model it using a prototype.
+- We set ACL requirements according to the given assignment description on the given users, and then model the AC mechanism using the client.
 
-- Specification of the access control list in the database.
+- ACL is stored in a separate environment from the application, precisely in a PostreSQL database.
 
-- We include the modifications to the ACL so that they will include the changes done on the company employees.
+- We include the modifications to the ACL so that they will include the changes of the new company structure.
 
-- Addition of `ClientACL.java` to simulate and validate the test cases in such a way that it tests the ACL functionalities and implements all the table changes for B,G, and H.
+- Addition of `ClientACL.java` to simulate and validate the test cases in such a way that it tests the ACL functionalities and implements all the table changes for B,G, H and I.
 
-Table 8 and Table 9 will show the tables for RBAC, which are discussed in the following sections:
+### Role-Based evaluation
+
+Thanks to its flexible design, the ACL table can now be used to assign specific permissions to each role in the company. For this specific application, it will therefore be shorter, and won't be modified by new hires in the company. 
 
 | **Table 8: User table with roles** |
 | :----------------------------------: |
 |    ![Table 8](pj2-images/table8.png)      |
 
-| **Table 9: The role table** |
+| **Table 9: Roles permissions** |
 | :----------------------------------: |
 |     ![Table 9](pj2-images/table9.png)     |
 
 
-We introduce roles in the tables that are absent for ACL and afterwards, according to the given scenario in this assignment description, we remove B from our users table. Subsequently, the role of G is adjusted from "user" to "user,tech" with different roles connected using ",". For the two recently included employees, I is assigned the role of root_user, while H is designated as a user. There won't be any changes done to the role table since we don't modify it in any way. Table 10 shows the user's table after our changes.
+After initially populating the the above tables accoring to assignment description, company changes are reflected by the following operations: B is removed from the users table; the role of G is adjusted from "user" to "user,tech" meaning a role-set of 2 roles. As for the new employees, I is inserted into the users table and assigned the role of root_user, while H is designated as a user. As anticipated, there won't be any changes done to the roles permissions table. Table 10 shows the users table after the changes:
 
 | **Table 10: Updated user table** |
 | :----------------------------------: |
@@ -219,15 +219,15 @@ We introduce roles in the tables that are absent for ACL and afterwards, accordi
 
 The implementation of the role-based access control mechanism has successfully met the following requirements:
 
-- Development of the role-based access control mechanism prototype that simulates the running of role-based access control requirements for our users.
+- Development of the role-based access control mechanism prototype that simulates the running of role-based access control requirements for our users. This AC mechanism is also dynamically handled by the users table.
 
-- Specification of the role hierarchy in the database.
+- Roles hierarchy are store in the database as an access control matrix using their respective permissions.
 
 - Incorporation of modifications to the role-based access control prototypes to reflect changes in company personnel.
 
-- Addition of `ClientRole.java` that handles the changes on the Role-Based implementation after filling up the role column in the user table. This test aims to verify the access control list's compliance with updated policy settings for users B, G, and H.
+- Addition of `ClientRole.java` to test the Role-Based implementation and company changes, by handling the updated policy settings for users B, G, H, I.
 
-However, both of the above mechanisms fall short in addressing two issues. Firstly, there is no registration API so users are inserted manually into the database, after which both of the clients are tested on them. Secondly, there is no proper UI for the registration of users, which hampers the practical usability of our application.
+However, for practical purposes, our design choices fall short in two aspects. Firstly, there is no persistence in the database, meaning our implementation inserts users manually into the database during every initialization, after which both of the clients are tested. Secondly, there is no proper UI for the registration of users, which makes our application more difficult to navigate for not-expert users.
 
 ### Run the project
 
@@ -264,6 +264,6 @@ To handle the onboarding and offboarding scenarios, that were presented to us in
 
 In this exercise, we incorporated access control using two mechanisms namely ACL (access control list) and RBAC(role-based access control) in our previously developed authentication lab. Initially, we developed prototypes for both mechanisms and eventually refined them to adapt to actual roles in the company. Figure 1 presents a clearly defined role hierarchy. In order to test both our access control mechanisms (ACL and RBAC), we developed separate clients for each that simulate the provided organization scenarios in the assignment description.
 
-In order to fulfill the assignment requirement of storage of ACL policies, we stored all the related information for both mechanisms in a PostgreSQL database. This also modeled a real-world scenario and then we defined a configuration variable `accessControlModel` to define the ACL mechanism to be used. These mechanisms then covered all our requirements that were defined in the introduction section.
+In order to fulfill the assignment requirement of storage of ACL policies, we stored all the related information for both mechanisms in a PostgreSQL database. This also modeled a real-world scenario and then we defined a configuration variable `accessControlModel` to switch between the two AC mechanisms. Our implementation also covers all our requirements that were defined in the introduction section.
 
 In the future, we can explore the integration of other access control mechanisms, such as attribute-based access control. A comparative analysis of the mechanisms discussed in this report could guide the selection of the most suitable one. Additionally, implementing a user-friendly interface for user registration and permission changes would enhance the overall user experience.
